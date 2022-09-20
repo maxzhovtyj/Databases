@@ -3,7 +3,8 @@ CREATE TABLE customer
 (
 	id SERIAL PRIMARY KEY,
 	first_name VARCHAR(128) NOT NULL,
-	last_name VARCHAR(128) NOT NULL
+	last_name VARCHAR(128) NOT NULL,
+	UNIQUE(first_name, last_name)
 );
 
 DROP TABLE IF EXISTS movie;
@@ -39,7 +40,8 @@ CREATE TABLE row
 (
 	id SERIAL PRIMARY KEY,
 	hall_id INT REFERENCES hall (id) ON DELETE CASCADE NOT NULL,
-	number_in_hall INT NOT NULL
+	number_in_hall INT NOT NULL,
+	UNIQUE(hall_id, number_in_hall)
 );
 
 DROP TABLE IF EXISTS position;
@@ -47,7 +49,8 @@ CREATE TABLE position
 (
 	id SERIAL PRIMARY KEY,
 	row_id INT REFERENCES row (id) ON DELETE CASCADE NOT NULL,
-	number_in_row INT NOT NULL
+	number_in_row INT NOT NULL,
+	UNIQUE(row_id, number_in_row)
 );
 
 DROP TABLE IF EXISTS ticket;
