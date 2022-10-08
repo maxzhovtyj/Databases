@@ -5,6 +5,16 @@ import (
 	"github.com/jackc/pgx"
 )
 
+const (
+	CustomersTable = "customer"
+	MovieTable     = "movie"
+	TicketTable    = "ticket"
+	HallTable      = "hall"
+	RowTable       = "row"
+	PositionTable  = "position"
+	SessionTable   = "session"
+)
+
 type StorageConfig struct {
 	Username string
 	Password string
