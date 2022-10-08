@@ -6,6 +6,7 @@ import (
 	"lab2/internal/domain"
 	"lab2/internal/service"
 	"os"
+	"time"
 )
 
 type handler struct {
@@ -18,7 +19,10 @@ type Handler interface {
 	GetHalls() error
 	GetSessions() error
 	GetTickets() error
-	InsertMovie() error
+	NewMovie() error
+	NewCustomer() error
+	NewSession() error
+	NewTicket() error
 }
 
 func NewHandler(service service.Service) Handler {
@@ -26,7 +30,7 @@ func NewHandler(service service.Service) Handler {
 }
 
 func (h *handler) GetCustomers() error {
-	customers, err := h.service.GetCustomers()
+	customers, err := h.service.SelectCustomers()
 	if err != nil {
 		return err
 	}
@@ -43,7 +47,7 @@ func (h *handler) GetCustomers() error {
 }
 
 func (h *handler) GetMovies() error {
-	movies, err := h.service.GetMovies()
+	movies, err := h.service.SelectMovies()
 	if err != nil {
 		return err
 	}
@@ -61,7 +65,7 @@ func (h *handler) GetMovies() error {
 }
 
 func (h *handler) GetHalls() error {
-	halls, err := h.service.GetHalls()
+	halls, err := h.service.SelectHalls()
 	if err != nil {
 		return err
 	}
@@ -79,7 +83,7 @@ func (h *handler) GetHalls() error {
 }
 
 func (h *handler) GetSessions() error {
-	sessions, err := h.service.GetSessions()
+	sessions, err := h.service.SelectSessions()
 	if err != nil {
 		return err
 	}
@@ -97,7 +101,7 @@ func (h *handler) GetSessions() error {
 }
 
 func (h *handler) GetTickets() error {
-	tickets, err := h.service.GetTickets()
+	tickets, err := h.service.SelectTickets()
 	if err != nil {
 		return err
 	}
@@ -116,8 +120,7 @@ func (h *handler) GetTickets() error {
 	return err
 }
 
-func (h *handler) InsertMovie() error {
-
+func (h *handler) NewMovie() error {
 	fmt.Print("Enter movie name: ")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -134,7 +137,7 @@ func (h *handler) InsertMovie() error {
 		return err
 	}
 
-	movieId, err := h.service.InsertMovie(domain.Movie{
+	movieId, err := h.service.CreateMovie(domain.Movie{
 		Title:       movieName,
 		Description: movieDescription,
 		Duration:    movieDuration,
@@ -144,6 +147,109 @@ func (h *handler) InsertMovie() error {
 	}
 
 	fmt.Println("Inserted movie id", movieId)
+
+	return nil
+}
+
+func (h *handler) NewCustomer() error {
+	fmt.Print("Enter customer firstname: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	customerFirstName := scanner.Text()
+
+	fmt.Print("Enter customer lastname: ")
+	scanner.Scan()
+	customerLastname := scanner.Text()
+
+	movieId, err := h.service.CreateCustomer(domain.Customer{
+		FirstName: customerFirstName,
+		LastName:  customerLastname,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Inserted customer id", movieId)
+
+	return nil
+}
+
+func (h *handler) NewSession() error {
+	var session domain.Session
+
+	fmt.Print("Enter movie id: ")
+	_, err := fmt.Scan(&session.MovieId)
+	if err != nil {
+		return fmt.Errorf("invalid movie id input")
+	}
+
+	fmt.Print("Enter hall id: ")
+	_, err = fmt.Scan(&session.HallId)
+	if err != nil {
+		return fmt.Errorf("invalid hall id input")
+	}
+
+	var startAt string
+	fmt.Print("Enter start time (ex.: 02/01/06,15:04): ")
+	_, err = fmt.Scan(&startAt)
+	if err != nil {
+		return fmt.Errorf("invalid start at time input")
+	}
+
+	session.StartAt, err = time.Parse("02/01/06,15:04", startAt)
+	if err != nil {
+		return fmt.Errorf("invalid start at time input")
+	}
+
+	sessionId, err := h.service.CreateSession(session)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Inserted session id", sessionId)
+
+	return nil
+}
+
+func (h *handler) NewTicket() error {
+	var ticket domain.Ticket
+
+	fmt.Print("Enter session id: ")
+	_, err := fmt.Scan(&ticket.SessionId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter customer id: ")
+	_, err = fmt.Scan(&ticket.CustomerId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter price: ")
+	_, err = fmt.Scan(&ticket.Price)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter row id: ")
+	_, err = fmt.Scan(&ticket.RowId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter position id: ")
+	_, err = fmt.Scan(&ticket.PositionId)
+	if err != nil {
+		return err
+	}
+
+	ticketId, err := h.service.CreateTicket(ticket)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Inserted ticket id", ticketId)
 
 	return nil
 }

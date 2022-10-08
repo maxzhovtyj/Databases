@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/jackc/pgx"
 	"lab2/internal/domain"
@@ -12,20 +13,23 @@ type storage struct {
 }
 
 type Repository interface {
-	GetCustomers() ([]domain.Customer, error)
-	GetMovies() ([]domain.Movie, error)
-	GetHalls() ([]domain.Hall, error)
-	GetSessions() ([]domain.Session, error)
-	GetTickets() ([]domain.Ticket, error)
+	SelectCustomers() ([]domain.Customer, error)
+	SelectMovies() ([]domain.Movie, error)
+	SelectHalls() ([]domain.Hall, error)
+	SelectSessions() ([]domain.Session, error)
+	SelectTickets() ([]domain.Ticket, error)
 	InsertMovie(movie domain.Movie) (int, error)
+	InsertCustomer(customer domain.Customer) (int, error)
+	InsertSession(session domain.Session) (int, error)
+	InsertTicket(ticket domain.Ticket) (int, error)
 }
 
 func NewRepository(db *pgx.Conn) Repository {
 	return &storage{db: db}
 }
 
-func (s *storage) GetCustomers() (customers []domain.Customer, err error) {
-	querySelectCustomers := fmt.Sprintf(`SELECT id, first_name, last_name FROM %s`, postgresql.CustomersTable)
+func (s *storage) SelectCustomers() (customers []domain.Customer, err error) {
+	querySelectCustomers := fmt.Sprintf(`SELECT id, first_name, last_name FROM %s`, postgresql.CustomerTable)
 	rows, err := s.db.Query(querySelectCustomers)
 	if err != nil {
 		return nil, err
@@ -49,7 +53,7 @@ func (s *storage) GetCustomers() (customers []domain.Customer, err error) {
 	return customers, err
 }
 
-func (s *storage) GetMovies() (movies []domain.Movie, err error) {
+func (s *storage) SelectMovies() (movies []domain.Movie, err error) {
 	querySelectMovies := fmt.Sprintf(`SELECT id, title, description, duration FROM %s`, postgresql.MovieTable)
 	rows, err := s.db.Query(querySelectMovies)
 	if err != nil {
@@ -74,7 +78,7 @@ func (s *storage) GetMovies() (movies []domain.Movie, err error) {
 	return movies, err
 }
 
-func (s *storage) GetHalls() (halls []domain.Hall, err error) {
+func (s *storage) SelectHalls() (halls []domain.Hall, err error) {
 	querySelectHalls := fmt.Sprintf(`SELECT id, title, description, capacity FROM %s`, postgresql.HallTable)
 	rows, err := s.db.Query(querySelectHalls)
 	if err != nil {
@@ -99,7 +103,7 @@ func (s *storage) GetHalls() (halls []domain.Hall, err error) {
 	return halls, err
 }
 
-func (s *storage) GetSessions() (sessions []domain.Session, err error) {
+func (s *storage) SelectSessions() (sessions []domain.Session, err error) {
 	querySelectSessions := fmt.Sprintf(`SELECT id, movie_id, hall_id, start_at FROM %s`, postgresql.SessionTable)
 	rows, err := s.db.Query(querySelectSessions)
 	if err != nil {
@@ -124,7 +128,7 @@ func (s *storage) GetSessions() (sessions []domain.Session, err error) {
 	return sessions, err
 }
 
-func (s *storage) GetTickets() (tickets []domain.Ticket, err error) {
+func (s *storage) SelectTickets() (tickets []domain.Ticket, err error) {
 	querySelectTickets := fmt.Sprintf(
 		"SELECT id, customer_id, session_id, price, row_id, position_id FROM %s",
 		postgresql.TicketTable,
@@ -174,4 +178,69 @@ func (s *storage) InsertMovie(movie domain.Movie) (int, error) {
 	}
 
 	return movieId, nil
+}
+
+func (s *storage) InsertCustomer(customer domain.Customer) (int, error) {
+	var customerId int
+
+	queryInsertCustomer := fmt.Sprintf(
+		"INSERT INTO %s (first_name, last_name) values ($1, $2) RETURNING id",
+		postgresql.CustomerTable,
+	)
+
+	row := s.db.QueryRow(queryInsertCustomer, customer.FirstName, customer.LastName)
+
+	if err := row.Scan(&customerId); err != nil {
+		return 0, err
+	}
+
+	return customerId, nil
+}
+
+func (s *storage) InsertSession(session domain.Session) (int, error) {
+	var sessionId int
+
+	queryInsertSession := fmt.Sprintf(
+		"INSERT INTO %s (movie_id, hall_id, start_at) values ($1, $2, $3) RETURNING id",
+		postgresql.SessionTable,
+	)
+
+	row := s.db.QueryRow(queryInsertSession, session.MovieId, session.HallId, session.StartAt)
+
+	if err := row.Scan(&sessionId); err != nil {
+		return 0, err
+	}
+
+	return sessionId, nil
+}
+
+func (s *storage) InsertTicket(ticket domain.Ticket) (int, error) {
+	var ticketId int
+
+	queryInsertTicket := fmt.Sprintf(
+		`
+		INSERT INTO %s (session_id, customer_id, price, row_id, position_id) 
+		values($1, $2, $3, $4, $5) 
+		RETURNING id
+		`,
+		postgresql.TicketTable,
+	)
+
+	row := s.db.QueryRow(
+		queryInsertTicket,
+		ticket.SessionId,
+		ticket.CustomerId,
+		ticket.Price,
+		ticket.RowId,
+		ticket.PositionId,
+	)
+
+	if err := row.Scan(&ticketId); err != nil {
+		if errors.Is(err, pgx.PgError{}) {
+			return 0, fmt.Errorf("failed to insert new ticket")
+		}
+		return 0, err
+	}
+
+	return ticketId, nil
 }

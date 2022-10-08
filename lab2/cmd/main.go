@@ -75,7 +75,28 @@ func runServer(handler handler.Handler) error {
 			}
 
 		case 6:
-			handler.InsertMovie()
+			err = handler.NewMovie()
+			if err != nil {
+				return err
+			}
+
+		case 7:
+			err = handler.NewCustomer()
+			if err != nil {
+				return err
+			}
+
+		case 8:
+			err = handler.NewSession()
+			if err != nil {
+				return err
+			}
+
+		case 9:
+			err = handler.NewTicket()
+			if err != nil {
+				return err
+			}
 		default:
 			break
 		}
@@ -93,5 +114,8 @@ func printMenu() {
 	fmt.Println("\t~ 4. Get all sessions from database")
 	fmt.Println("\t~ 5. Get all tickets from database")
 
-	fmt.Println("\t~ 6. Insert new movie to database")
+	fmt.Println("\t~ 6. Create new movie")
+	fmt.Println("\t~ 7. Create new customer")
+	fmt.Println("\t~ 8. Create new session")
+	fmt.Println("\t~ 9. Create new ticket")
 }

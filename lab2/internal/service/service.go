@@ -10,38 +10,53 @@ type service struct {
 }
 
 type Service interface {
-	GetCustomers() ([]domain.Customer, error)
-	GetMovies() (movies []domain.Movie, err error)
-	GetHalls() ([]domain.Hall, error)
-	GetSessions() ([]domain.Session, error)
-	GetTickets() ([]domain.Ticket, error)
-	InsertMovie(movie domain.Movie) (int, error)
+	SelectCustomers() ([]domain.Customer, error)
+	SelectMovies() (movies []domain.Movie, err error)
+	SelectHalls() ([]domain.Hall, error)
+	SelectSessions() ([]domain.Session, error)
+	SelectTickets() ([]domain.Ticket, error)
+	CreateMovie(movie domain.Movie) (int, error)
+	CreateCustomer(customer domain.Customer) (int, error)
+	CreateSession(session domain.Session) (int, error)
+	CreateTicket(ticket domain.Ticket) (int, error)
 }
 
 func NewService(repo repository.Repository) Service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetCustomers() ([]domain.Customer, error) {
-	return s.repo.GetCustomers()
+func (s *service) SelectCustomers() ([]domain.Customer, error) {
+	return s.repo.SelectCustomers()
 }
 
-func (s *service) GetMovies() (movies []domain.Movie, err error) {
-	return s.repo.GetMovies()
+func (s *service) SelectMovies() (movies []domain.Movie, err error) {
+	return s.repo.SelectMovies()
 }
 
-func (s *service) GetHalls() ([]domain.Hall, error) {
-	return s.repo.GetHalls()
+func (s *service) SelectHalls() ([]domain.Hall, error) {
+	return s.repo.SelectHalls()
 }
 
-func (s *service) GetSessions() ([]domain.Session, error) {
-	return s.repo.GetSessions()
+func (s *service) SelectSessions() ([]domain.Session, error) {
+	return s.repo.SelectSessions()
 }
 
-func (s *service) GetTickets() ([]domain.Ticket, error) {
-	return s.repo.GetTickets()
+func (s *service) SelectTickets() ([]domain.Ticket, error) {
+	return s.repo.SelectTickets()
 }
 
-func (s *service) InsertMovie(movie domain.Movie) (int, error) {
+func (s *service) CreateMovie(movie domain.Movie) (int, error) {
 	return s.repo.InsertMovie(movie)
+}
+
+func (s *service) CreateCustomer(customer domain.Customer) (int, error) {
+	return s.repo.InsertCustomer(customer)
+}
+
+func (s *service) CreateSession(session domain.Session) (int, error) {
+	return s.repo.InsertSession(session)
+}
+
+func (s *service) CreateTicket(ticket domain.Ticket) (int, error) {
+	return s.repo.InsertTicket(ticket)
 }
