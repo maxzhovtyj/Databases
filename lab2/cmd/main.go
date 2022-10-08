@@ -45,61 +45,37 @@ func runServer(handler handler.Handler) error {
 
 		switch option {
 		case 1:
-			customers, err := handler.GetCustomers()
+			err = handler.GetCustomers()
 			if err != nil {
 				return err
-			}
-
-			for _, mov := range customers {
-				fmt.Println("Відвідувач id =", mov.Id)
-				fmt.Println("\tІм'я:", mov.FirstName)
-				fmt.Println("\tПрізвище:", mov.LastName)
 			}
 
 		case 2:
-			movies, err := handler.GetMovies()
+			err = handler.GetMovies()
 			if err != nil {
 				return err
 			}
-
-			for _, mov := range movies {
-				fmt.Println("Фільм id =", mov.Id)
-				fmt.Println("\tНазва:", mov.Title)
-				fmt.Println("\tОпис:", mov.Description)
-				fmt.Println("\tТривалість:", mov.Duration)
-			}
-
-			fmt.Println("Кількість фільмів =", len(movies))
 
 		case 3:
-			halls, err := handler.GetHalls()
+			err = handler.GetHalls()
 			if err != nil {
 				return err
 			}
-
-			for _, h := range halls {
-				fmt.Println("Кінозал id =", h.Id)
-				fmt.Println("\tНазва:", h.Title)
-				fmt.Println("\tОпис:", h.Description)
-				fmt.Println("\tВмістимість:", h.Capacity)
-			}
-
-			fmt.Println("Кількість кінозалів =", len(halls))
 
 		case 4:
-			sessions, err := handler.GetSessions()
+			err = handler.GetSessions()
 			if err != nil {
 				return err
 			}
 
-			for _, h := range sessions {
-				fmt.Println("Сеанс id =", h.Id)
-				fmt.Println("\tФільм:", h.MovieId)
-				fmt.Println("\tКінозал:", h.HallId)
-				fmt.Println("\tПочинається о:", h.StartAt)
+		case 5:
+			err = handler.GetTickets()
+			if err != nil {
+				return err
 			}
 
-			fmt.Println("Кількість сеансів =", len(sessions))
+		case 6:
+			handler.InsertMovie()
 		default:
 			break
 		}
@@ -115,4 +91,7 @@ func printMenu() {
 	fmt.Println("\t~ 2. Get all movies from database")
 	fmt.Println("\t~ 3. Get all halls from database")
 	fmt.Println("\t~ 4. Get all sessions from database")
+	fmt.Println("\t~ 5. Get all tickets from database")
+
+	fmt.Println("\t~ 6. Insert new movie to database")
 }

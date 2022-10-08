@@ -16,6 +16,8 @@ type Repository interface {
 	GetMovies() ([]domain.Movie, error)
 	GetHalls() ([]domain.Hall, error)
 	GetSessions() ([]domain.Session, error)
+	GetTickets() ([]domain.Ticket, error)
+	InsertMovie(movie domain.Movie) (int, error)
 }
 
 func NewRepository(db *pgx.Conn) Repository {
@@ -120,4 +122,56 @@ func (s *storage) GetSessions() (sessions []domain.Session, err error) {
 	}
 
 	return sessions, err
+}
+
+func (s *storage) GetTickets() (tickets []domain.Ticket, err error) {
+	querySelectTickets := fmt.Sprintf(
+		"SELECT id, customer_id, session_id, price, row_id, position_id FROM %s",
+		postgresql.TicketTable,
+	)
+
+	rows, err := s.db.Query(querySelectTickets)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var ticket domain.Ticket
+
+		if err = rows.Scan(
+			&ticket.Id,
+			&ticket.CustomerId,
+			&ticket.SessionId,
+			&ticket.Price,
+			&ticket.RowId,
+			&ticket.PositionId,
+		); err != nil {
+			return nil, err
+		}
+
+		tickets = append(tickets, ticket)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return tickets, err
+}
+
+func (s *storage) InsertMovie(movie domain.Movie) (int, error) {
+	var movieId int
+
+	queryInsertMovie := fmt.Sprintf(
+		"INSERT INTO %s (title, description, duration) values ($1, $2, $3) RETURNING id",
+		postgresql.MovieTable,
+	)
+
+	row := s.db.QueryRow(queryInsertMovie, movie.Title, movie.Description, movie.Duration)
+
+	if err := row.Scan(&movieId); err != nil {
+		return 0, err
+	}
+
+	return movieId, nil
 }

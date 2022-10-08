@@ -14,6 +14,8 @@ type Service interface {
 	GetMovies() (movies []domain.Movie, err error)
 	GetHalls() ([]domain.Hall, error)
 	GetSessions() ([]domain.Session, error)
+	GetTickets() ([]domain.Ticket, error)
+	InsertMovie(movie domain.Movie) (int, error)
 }
 
 func NewService(repo repository.Repository) Service {
@@ -34,4 +36,12 @@ func (s *service) GetHalls() ([]domain.Hall, error) {
 
 func (s *service) GetSessions() ([]domain.Session, error) {
 	return s.repo.GetSessions()
+}
+
+func (s *service) GetTickets() ([]domain.Ticket, error) {
+	return s.repo.GetTickets()
+}
+
+func (s *service) InsertMovie(movie domain.Movie) (int, error) {
+	return s.repo.InsertMovie(movie)
 }
