@@ -107,6 +107,11 @@ func runServer(handler handler.Handler) error {
 			if err != nil {
 				return err
 			}
+		case 12:
+			err = handler.SearchHalls()
+			if err != nil {
+				return err
+			}
 		default:
 			break
 		}
@@ -131,4 +136,5 @@ func printMenu() {
 
 	fmt.Println("\t~ 10. Search sessions")
 	fmt.Println("\t~ 11. Search tickets")
+	fmt.Println("\t~ 12. Search halls")
 }

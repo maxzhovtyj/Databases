@@ -25,6 +25,7 @@ type Handler interface {
 	NewTicket() error
 	SearchSessions() error
 	SearchTickets() error
+	SearchHalls() (err error)
 }
 
 func NewHandler(service service.Service) Handler {
@@ -363,50 +364,42 @@ func (h *handler) SearchTickets() (err error) {
 }
 
 func (h *handler) SearchHalls() (err error) {
-	var searchParams domain.SessionsSearchParams
+	//var searchParams domain.HallsSearchParams
+	//
+	//fmt.Print("Enter hall title: ")
+	//scanner := bufio.NewScanner(os.Stdin)
+	//scanner.Scan()
+	//searchParams.HallTitle = scanner.Text()
+	//
+	//fmt.Print("Enter capacity greater than: ")
+	//_, err = fmt.Scan(&searchParams.CapacityGt)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//fmt.Print("Enter capacity lower than: ")
+	//_, err = fmt.Scan(&searchParams.CapacityLt)
+	//if err != nil {
+	//	return err
+	//}
 
-	fmt.Print("Enter movie name: ")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	searchParams.MovieName = scanner.Text()
-
-	var startAtGt string
-	fmt.Print("Enter start time (ex.: 02/01/06,15:04): ")
-	_, err = fmt.Scan(&startAtGt)
-	if err != nil {
-		return fmt.Errorf("invalid start at time input")
-	}
-
-	searchParams.StartAtGt, err = time.Parse("02/01/06,15:04", startAtGt)
-	if err != nil {
-		return fmt.Errorf("invalid start at time input")
-	}
-
-	var startAtLt string
-	fmt.Print("Enter start time (ex.: 02/01/06,15:04): ")
-	_, err = fmt.Scan(&startAtLt)
-	if err != nil {
-		return fmt.Errorf("invalid start at time input")
-	}
-
-	searchParams.StartAtLt, err = time.Parse("02/01/06,15:04", startAtLt)
-	if err != nil {
-		return fmt.Errorf("invalid start at time input")
-	}
-
-	sessions, queryTime, err := h.service.SearchSessions(searchParams)
+	halls, queryTime, err := h.service.SearchHalls(domain.HallsSearchParams{
+		HallTitle:  "par",
+		CapacityGt: 0,
+		CapacityLt: 1000,
+	})
 	if err != nil {
 		return err
 	}
 
-	for _, s := range sessions {
-		fmt.Println("Сеанс id =", s.Id)
-		fmt.Println("\tНазва фільму:", s.Movie)
-		fmt.Println("\tПочаток о:", s.StartAt)
-		fmt.Println("\tКінозал:", s.Hall)
+	for _, hls := range halls {
+		fmt.Println("Кінозал id =", hls.Id)
+		fmt.Println("\tНазва:", hls.Title)
+		fmt.Println("\tОпис:", hls.Description)
+		fmt.Println("\tРяди:", hls.Rows)
 	}
 
-	fmt.Println("Кількість сеансів =", len(sessions))
+	fmt.Println("Кількість кінозалів =", len(halls))
 
 	fmt.Println("====================================")
 	fmt.Println("Query time:", queryTime)

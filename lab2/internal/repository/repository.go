@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/pgtype"
 	"lab2/internal/domain"
 	"lab2/pkg/client/postgresql"
 	"time"
@@ -24,8 +25,8 @@ type Repository interface {
 	InsertSession(session domain.Session) (int, error)
 	InsertTicket(ticket domain.Ticket) (int, error)
 	SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
-	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketsDTO, time.Duration, error)
-	SearchHalls(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
+	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error)
+	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
 }
 
 func NewRepository(db *pgx.Conn) Repository {
@@ -291,7 +292,7 @@ func (s *storage) SearchSessions(params domain.SessionsSearchParams) (sessions [
 	return sessions, d, err
 }
 
-func (s *storage) SearchTickets(params domain.TicketsSearchParams) (tickets []domain.SelectTicketsDTO, d time.Duration, err error) {
+func (s *storage) SearchTickets(params domain.TicketsSearchParams) (tickets []domain.SelectTicketDTO, d time.Duration, err error) {
 	querySearchSessions := fmt.Sprintf(
 		`
 		SELECT 
@@ -335,7 +336,7 @@ func (s *storage) SearchTickets(params domain.TicketsSearchParams) (tickets []do
 	d = time.Now().Sub(start)
 
 	for rows.Next() {
-		var dto domain.SelectTicketsDTO
+		var dto domain.SelectTicketDTO
 
 		if err = rows.Scan(
 			&dto.Id,
@@ -362,6 +363,48 @@ func (s *storage) SearchTickets(params domain.TicketsSearchParams) (tickets []do
 	return tickets, d, err
 }
 
-func (s *storage) SearchHalls(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error) {
-	return nil, 0, nil
+func (s *storage) SearchHalls(params domain.HallsSearchParams) (halls []domain.SelectHallDTO, d time.Duration, err error) {
+	q := `
+		SELECT hall.id,
+        	hall.title,
+        	hall.description,
+        	hall.capacity,
+        	array_agg(r.number_in_hall) as rows
+		FROM hall
+		LEFT JOIN row r on hall.id = r.hall_id
+		WHERE LOWER(hall.title) LIKE LOWER(CONCAT('%', $1::varchar, '%'))
+			AND hall.capacity >= $2 AND hall.capacity <= $3
+		GROUP BY hall.id
+	`
+
+	start := time.Now()
+
+	rows, err := s.db.Query(q, params.HallTitle, params.CapacityGt, params.CapacityLt)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to select halls")
+	}
+
+	queryTime := time.Now().Sub(start)
+
+	for rows.Next() {
+		var dto domain.SelectHallDTO
+		var r pgtype.Int4Array
+		if err = rows.Scan(
+			&dto.Id,
+			&dto.Title,
+			&dto.Description,
+			&dto.Capacity,
+			&r,
+		); err != nil {
+			return nil, 0, err
+		}
+
+		for _, e := range r.Elements {
+			dto.Rows = append(dto.Rows, e.Int)
+		}
+
+		halls = append(halls, dto)
+	}
+
+	return halls, queryTime, err
 }

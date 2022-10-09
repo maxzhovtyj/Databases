@@ -21,7 +21,8 @@ type Service interface {
 	CreateSession(session domain.Session) (int, error)
 	CreateTicket(ticket domain.Ticket) (int, error)
 	SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
-	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketsDTO, time.Duration, error)
+	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error)
+	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
 }
 
 func NewService(repo repository.Repository) Service {
@@ -68,6 +69,10 @@ func (s *service) SearchSessions(params domain.SessionsSearchParams) ([]domain.S
 	return s.repo.SearchSessions(params)
 }
 
-func (s *service) SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketsDTO, time.Duration, error) {
+func (s *service) SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error) {
 	return s.repo.SearchTickets(params)
+}
+
+func (s *service) SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error) {
+	return s.repo.SearchHalls(params)
 }

@@ -11,7 +11,7 @@ type Ticket struct {
 	PositionId int
 }
 
-type SelectTicketsDTO struct {
+type SelectTicketDTO struct {
 	Id                int
 	MovieTitle        string
 	SessionStartAt    time.Time
