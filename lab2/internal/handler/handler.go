@@ -364,24 +364,24 @@ func (h *handler) SearchTickets() (err error) {
 }
 
 func (h *handler) SearchHalls() (err error) {
-	//var searchParams domain.HallsSearchParams
-	//
-	//fmt.Print("Enter hall title: ")
-	//scanner := bufio.NewScanner(os.Stdin)
-	//scanner.Scan()
-	//searchParams.HallTitle = scanner.Text()
-	//
-	//fmt.Print("Enter capacity greater than: ")
-	//_, err = fmt.Scan(&searchParams.CapacityGt)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//fmt.Print("Enter capacity lower than: ")
-	//_, err = fmt.Scan(&searchParams.CapacityLt)
-	//if err != nil {
-	//	return err
-	//}
+	var searchParams domain.HallsSearchParams
+
+	fmt.Print("Enter hall title: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	searchParams.HallTitle = scanner.Text()
+
+	fmt.Print("Enter capacity greater than: ")
+	_, err = fmt.Scan(&searchParams.CapacityGt)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter capacity lower than: ")
+	_, err = fmt.Scan(&searchParams.CapacityLt)
+	if err != nil {
+		return err
+	}
 
 	halls, queryTime, err := h.service.SearchHalls(domain.HallsSearchParams{
 		HallTitle:  "par",
@@ -392,11 +392,11 @@ func (h *handler) SearchHalls() (err error) {
 		return err
 	}
 
-	for _, hls := range halls {
-		fmt.Println("Кінозал id =", hls.Id)
-		fmt.Println("\tНазва:", hls.Title)
-		fmt.Println("\tОпис:", hls.Description)
-		fmt.Println("\tРяди:", hls.Rows)
+	for _, hl := range halls {
+		fmt.Println("Кінозал id =", hl.Id)
+		fmt.Println("\tНазва:", hl.Title)
+		fmt.Println("\tОпис:", hl.Description)
+		fmt.Println("\tРяди:", hl.Rows)
 	}
 
 	fmt.Println("Кількість кінозалів =", len(halls))
