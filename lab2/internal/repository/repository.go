@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx"
 	"lab2/internal/domain"
 	"lab2/pkg/client/postgresql"
+	"time"
 )
 
 type storage struct {
@@ -22,6 +23,9 @@ type Repository interface {
 	InsertCustomer(customer domain.Customer) (int, error)
 	InsertSession(session domain.Session) (int, error)
 	InsertTicket(ticket domain.Ticket) (int, error)
+	SearchSessions(params domain.SearchSessionsParams) ([]domain.SelectSessionDTO, time.Duration, error)
+	//SearchTickets(params domain.SearchSessionsParams) ([]domain.SelectTicketsDTO, time.Duration, error)
+	//SearchHalls(params domain.SearchSessionsParams) ([]domain.SelectSessionDTO, time.Duration, error)
 }
 
 func NewRepository(db *pgx.Conn) Repository {
@@ -243,4 +247,46 @@ func (s *storage) InsertTicket(ticket domain.Ticket) (int, error) {
 	}
 
 	return ticketId, nil
+}
+
+func (s *storage) SearchSessions(params domain.SearchSessionsParams) (sessions []domain.SelectSessionDTO, d time.Duration, err error) {
+	querySearchSessions := fmt.Sprintf(
+		`
+		SELECT session.id,
+				movie.title as movie,
+		   		session.start_at,
+		   		hall.title  as hall
+		FROM session
+			 JOIN movie on movie.id = session.movie_id
+			 JOIN hall on hall.id = session.hall_id
+		WHERE LOWER(movie.title) LIKE LOWER(CONCAT('%%',$1::varchar,'%%'))
+	  		AND session.start_at > $2
+	  		AND session.start_at < $3;
+		`,
+	)
+
+	start := time.Now()
+
+	rows, err := s.db.Query(querySearchSessions, params.MovieName, params.StartAtGt, params.StartAtLt)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	d = time.Now().Sub(start)
+
+	for rows.Next() {
+		var sn domain.SelectSessionDTO
+
+		if err = rows.Scan(&sn.Id, &sn.Movie, &sn.StartAt, &sn.Hall); err != nil {
+			return nil, 0, err
+		}
+
+		sessions = append(sessions, sn)
+	}
+
+	if rows.Err() != nil {
+		return nil, 0, nil
+	}
+
+	return sessions, d, err
 }

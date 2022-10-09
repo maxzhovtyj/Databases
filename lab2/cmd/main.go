@@ -97,6 +97,11 @@ func runServer(handler handler.Handler) error {
 			if err != nil {
 				return err
 			}
+		case 10:
+			err = handler.SearchSessions()
+			if err != nil {
+				return err
+			}
 		default:
 			break
 		}
@@ -118,4 +123,6 @@ func printMenu() {
 	fmt.Println("\t~ 7. Create new customer")
 	fmt.Println("\t~ 8. Create new session")
 	fmt.Println("\t~ 9. Create new ticket")
+
+	fmt.Println("\t~ 10. Search sessions")
 }

@@ -8,3 +8,16 @@ type Session struct {
 	HallId  int
 	StartAt time.Time
 }
+
+type SelectSessionDTO struct {
+	Id      int
+	Movie   string
+	StartAt time.Time
+	Hall    string
+}
+
+type SearchSessionsParams struct {
+	MovieName string
+	StartAtGt time.Time
+	StartAtLt time.Time
+}
