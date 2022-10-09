@@ -24,8 +24,9 @@ type SelectTicketsDTO struct {
 	Position          int
 }
 
-type SearchParams struct {
-	Price           float64
-	MovieDurationGt time.Time
-	MovieDurationLt time.Time
+type TicketsSearchParams struct {
+	PriceGt         float64
+	PriceLt         float64
+	MovieDurationGt string
+	MovieDurationLt string
 }

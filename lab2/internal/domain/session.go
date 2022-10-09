@@ -16,7 +16,7 @@ type SelectSessionDTO struct {
 	Hall    string
 }
 
-type SearchSessionsParams struct {
+type SessionsSearchParams struct {
 	MovieName string
 	StartAtGt time.Time
 	StartAtLt time.Time

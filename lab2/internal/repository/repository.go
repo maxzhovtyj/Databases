@@ -23,9 +23,9 @@ type Repository interface {
 	InsertCustomer(customer domain.Customer) (int, error)
 	InsertSession(session domain.Session) (int, error)
 	InsertTicket(ticket domain.Ticket) (int, error)
-	SearchSessions(params domain.SearchSessionsParams) ([]domain.SelectSessionDTO, time.Duration, error)
-	//SearchTickets(params domain.SearchSessionsParams) ([]domain.SelectTicketsDTO, time.Duration, error)
-	//SearchHalls(params domain.SearchSessionsParams) ([]domain.SelectSessionDTO, time.Duration, error)
+	SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
+	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketsDTO, time.Duration, error)
+	SearchHalls(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
 }
 
 func NewRepository(db *pgx.Conn) Repository {
@@ -249,7 +249,7 @@ func (s *storage) InsertTicket(ticket domain.Ticket) (int, error) {
 	return ticketId, nil
 }
 
-func (s *storage) SearchSessions(params domain.SearchSessionsParams) (sessions []domain.SelectSessionDTO, d time.Duration, err error) {
+func (s *storage) SearchSessions(params domain.SessionsSearchParams) (sessions []domain.SelectSessionDTO, d time.Duration, err error) {
 	querySearchSessions := fmt.Sprintf(
 		`
 		SELECT session.id,
@@ -289,4 +289,79 @@ func (s *storage) SearchSessions(params domain.SearchSessionsParams) (sessions [
 	}
 
 	return sessions, d, err
+}
+
+func (s *storage) SearchTickets(params domain.TicketsSearchParams) (tickets []domain.SelectTicketsDTO, d time.Duration, err error) {
+	querySearchSessions := fmt.Sprintf(
+		`
+		SELECT 
+			ticket.id,
+			movie.title as movie,
+			session.start_at,
+			hall.title as hall,
+			customer.first_name,
+			customer.last_name,
+			ticket.price,
+			movie.duration,
+			row.number_in_hall as row,
+			position.number_in_row as position
+		FROM ticket
+		JOIN session ON ticket.session_id = session.id
+		JOIN customer ON ticket.customer_id = customer.id
+		JOIN movie ON session.movie_id = movie.id
+		JOIN hall ON session.hall_id = hall.id
+		JOIN row ON ticket.row_id = row.id
+		JOIN position ON ticket.position_id = position.id
+		WHERE ticket.price >= $1 
+			AND ticket.price <= $2
+			AND movie.duration >= $3
+			AND movie.duration <= $4
+		`,
+	)
+
+	start := time.Now()
+
+	rows, err := s.db.Query(
+		querySearchSessions,
+		params.PriceGt,
+		params.PriceLt,
+		params.MovieDurationGt,
+		params.MovieDurationLt,
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	d = time.Now().Sub(start)
+
+	for rows.Next() {
+		var dto domain.SelectTicketsDTO
+
+		if err = rows.Scan(
+			&dto.Id,
+			&dto.MovieTitle,
+			&dto.SessionStartAt,
+			&dto.HallTitle,
+			&dto.CustomerFirstname,
+			&dto.CustomerLastname,
+			&dto.Price,
+			&dto.MovieDuration,
+			&dto.Row,
+			&dto.Position,
+		); err != nil {
+			return nil, 0, err
+		}
+
+		tickets = append(tickets, dto)
+	}
+
+	if rows.Err() != nil {
+		return nil, 0, nil
+	}
+
+	return tickets, d, err
+}
+
+func (s *storage) SearchHalls(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error) {
+	return nil, 0, nil
 }
