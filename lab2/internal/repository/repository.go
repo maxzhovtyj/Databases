@@ -29,6 +29,14 @@ type Repository interface {
 	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
 	InsertRandomisedMovies(movieAmount int) error
 	InsertRandomisedSessions(amount int) error
+	DeleteCustomer(id int) error
+	DeleteMovie(id int) error
+	DeleteSession(id int) error
+	DeleteTicket(id int) error
+	UpdateCustomer(customer domain.Customer) error
+	UpdateMovie(movie domain.Movie) error
+	UpdateSession(session domain.Session) error
+	UpdateTicket(ticket domain.Ticket) error
 }
 
 func NewRepository(db *pgx.Conn) Repository {
@@ -173,6 +181,8 @@ func (s *storage) SelectTickets() (tickets []domain.Ticket, err error) {
 	return tickets, err
 }
 
+//
+
 func (s *storage) InsertMovie(movie domain.Movie) (int, error) {
 	var movieId int
 
@@ -254,6 +264,8 @@ func (s *storage) InsertTicket(ticket domain.Ticket) (int, error) {
 
 	return ticketId, nil
 }
+
+//
 
 func (s *storage) SearchSessions(params domain.SessionsSearchParams) (sessions []domain.SelectSessionDTO, d time.Duration, err error) {
 	querySearchSessions := fmt.Sprintf(
@@ -414,6 +426,8 @@ func (s *storage) SearchHalls(params domain.HallsSearchParams) (halls []domain.S
 	return halls, queryTime, err
 }
 
+//
+
 func (s *storage) InsertRandomisedMovies(movieAmount int) error {
 	q :=
 		`
@@ -450,4 +464,116 @@ func (s *storage) InsertRandomisedSessions(amount int) error {
 	}
 
 	return nil
+}
+
+//
+
+func (s *storage) DeleteCustomer(id int) error {
+	queryDeleteCustomer := fmt.Sprintf("DELETE FROM %s WHERE id = $1", postgresql.CustomerTable)
+
+	_, err := s.db.Exec(queryDeleteCustomer, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete customer id = %d due to error: %v", id, err)
+	}
+
+	return nil
+}
+
+func (s *storage) DeleteMovie(id int) error {
+	queryDeleteMovie := fmt.Sprintf("DELETE FROM %s WHERE id = $1", postgresql.MovieTable)
+
+	_, err := s.db.Exec(queryDeleteMovie, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete movie id = %d due to error: %v", id, err)
+	}
+
+	return nil
+}
+
+func (s *storage) DeleteSession(id int) error {
+	queryDeleteSession := fmt.Sprintf("DELETE FROM %s WHERE id = $1", postgresql.SessionTable)
+
+	_, err := s.db.Exec(queryDeleteSession, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete session id = %d due to error: %v", id, err)
+	}
+
+	return nil
+}
+
+func (s *storage) DeleteTicket(id int) error {
+	queryDeleteTicket := fmt.Sprintf("DELETE FROM %s WHERE id = $1", postgresql.TicketTable)
+
+	_, err := s.db.Exec(queryDeleteTicket, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete ticket id = %d due to error: %v", id, err)
+	}
+
+	return nil
+}
+
+//
+
+func (s *storage) UpdateCustomer(customer domain.Customer) error {
+	queryUpdateCustomer := fmt.Sprintf(
+		"UPDATE %s SET first_name = $1, last_name = $2 WHERE id = $3",
+		postgresql.CustomerTable,
+	)
+
+	_, err := s.db.Exec(queryUpdateCustomer, customer.FirstName, customer.LastName, customer.Id)
+	if err != nil {
+		return fmt.Errorf("failed to update customer id = %d, due to error: %v", customer.Id, err)
+	}
+
+	return err
+}
+
+func (s *storage) UpdateMovie(movie domain.Movie) error {
+	queryUpdateMovie := fmt.Sprintf(
+		"UPDATE %s SET title = $1, description = $2, duration = $3 WHERE id = $4",
+		postgresql.MovieTable,
+	)
+
+	_, err := s.db.Exec(queryUpdateMovie, movie.Title, movie.Description, movie.Duration, movie.Id)
+	if err != nil {
+		return fmt.Errorf("failed to update movie id = %d, due to error: %v", movie.Id, err)
+	}
+
+	return err
+}
+
+func (s *storage) UpdateSession(session domain.Session) error {
+	queryUpdateSession := fmt.Sprintf(
+		"UPDATE %s SET movie_id = $1, hall_id = $2, start_at = $3 WHERE id = $4",
+		postgresql.SessionTable,
+	)
+
+	_, err := s.db.Exec(queryUpdateSession, session.MovieId, session.HallId, session.StartAt, session.Id)
+	if err != nil {
+		return fmt.Errorf("failed to update session id = %d, due to error: %v", session.Id, err)
+	}
+
+	return err
+}
+
+func (s *storage) UpdateTicket(ticket domain.Ticket) error {
+	queryUpdateSession := fmt.Sprintf(
+		"UPDATE %s SET customer_id = $1, session_id = $2, price = $3, row_id = $4, position_id = $5 WHERE id = $6",
+		postgresql.TicketTable,
+	)
+
+	_, err := s.db.Exec(
+		queryUpdateSession,
+		ticket.CustomerId,
+		ticket.SessionId,
+		ticket.Price,
+		ticket.RowId,
+		ticket.PositionId,
+		ticket.Id,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update ticket id = %d, due to error: %v", ticket.Id, err)
+	}
+
+	return err
 }

@@ -25,6 +25,14 @@ type Service interface {
 	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
 	CreateRandomMovies(amount int) error
 	CreateRandomSessions(amount int) error
+	DeleteCustomer(id int) error
+	DeleteMovie(id int) error
+	DeleteSession(id int) error
+	DeleteTicket(id int) error
+	UpdateCustomer(customer domain.Customer) error
+	UpdateMovie(movie domain.Movie) error
+	UpdateSession(session domain.Session) error
+	UpdateTicket(ticket domain.Ticket) error
 }
 
 func NewService(repo repository.Repository) Service {
@@ -85,4 +93,35 @@ func (s *service) CreateRandomMovies(amount int) error {
 
 func (s *service) CreateRandomSessions(amount int) error {
 	return s.repo.InsertRandomisedSessions(amount)
+}
+
+func (s *service) DeleteCustomer(id int) error {
+	return s.repo.DeleteCustomer(id)
+}
+func (s *service) DeleteMovie(id int) error {
+	return s.repo.DeleteMovie(id)
+}
+func (s *service) DeleteSession(id int) error {
+	return s.repo.DeleteSession(id)
+}
+func (s *service) DeleteTicket(id int) error {
+	return s.repo.DeleteTicket(id)
+}
+
+//
+
+func (s *service) UpdateCustomer(customer domain.Customer) error {
+	return s.repo.UpdateCustomer(customer)
+}
+
+func (s *service) UpdateMovie(movie domain.Movie) error {
+	return s.repo.UpdateMovie(movie)
+}
+
+func (s *service) UpdateSession(session domain.Session) error {
+	return s.repo.UpdateSession(session)
+}
+
+func (s *service) UpdateTicket(ticket domain.Ticket) error {
+	return s.repo.UpdateTicket(ticket)
 }

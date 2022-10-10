@@ -28,6 +28,14 @@ type Handler interface {
 	SearchHalls() error
 	NewRandomMovies() error
 	NewRandomSessions() error
+	DeleteCustomer() error
+	DeleteMovie() error
+	DeleteSession() error
+	DeleteTicket() error
+	UpdateCustomer() error
+	UpdateMovie() error
+	UpdateSession() error
+	UpdateTicket() error
 }
 
 func NewHandler(service service.Service) Handler {
@@ -124,6 +132,8 @@ func (h *handler) GetTickets() error {
 
 	return err
 }
+
+//
 
 func (h *handler) NewMovie() error {
 	fmt.Print("Enter movie name: ")
@@ -258,6 +268,8 @@ func (h *handler) NewTicket() error {
 
 	return nil
 }
+
+//
 
 func (h *handler) SearchSessions() (err error) {
 	var searchParams domain.SessionsSearchParams
@@ -410,6 +422,8 @@ func (h *handler) SearchHalls() (err error) {
 	return err
 }
 
+//
+
 func (h *handler) NewRandomMovies() error {
 	var movieAmount int
 	fmt.Print("Enter inserted movie amount: ")
@@ -443,5 +457,223 @@ func (h *handler) NewRandomSessions() error {
 
 	fmt.Println("Successfully inserted:", sessionsAmount)
 
+	return err
+}
+
+//
+
+func (h *handler) DeleteCustomer() error {
+	var id int
+	fmt.Print("Enter customer id you want to delete: ")
+	_, err := fmt.Scan(&id)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.DeleteCustomer(id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Customer id = %d successfully deleted\n", id)
+	return err
+}
+
+func (h *handler) DeleteMovie() error {
+	var id int
+	fmt.Print("Enter movie id you want to delete: ")
+	_, err := fmt.Scan(&id)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.DeleteMovie(id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Movie id = %d successfully deleted\n", id)
+	return err
+}
+
+func (h *handler) DeleteSession() error {
+	var id int
+	fmt.Print("Enter session id you want to delete: ")
+	_, err := fmt.Scan(&id)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.DeleteSession(id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Session %d successfully deleted\n", id)
+	return err
+}
+
+func (h *handler) DeleteTicket() error {
+	var id int
+	fmt.Print("Enter session id you want to delete: ")
+	_, err := fmt.Scan(&id)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.DeleteTicket(id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Ticket %d successfully deleted\n", id)
+	return err
+}
+
+//
+
+func (h *handler) UpdateCustomer() error {
+	var customer domain.Customer
+	fmt.Print("Enter customer id you want to update: ")
+	_, err := fmt.Scan(&customer.Id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter customer new firstname: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	customer.FirstName = scanner.Text()
+
+	fmt.Print("Enter customer new lastname: ")
+	scanner.Scan()
+	customer.LastName = scanner.Text()
+
+	err = h.service.UpdateCustomer(customer)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Customer successfully updated")
+	return err
+}
+
+func (h *handler) UpdateMovie() error {
+	var movie domain.Movie
+	fmt.Print("Enter movie id you want to update: ")
+	_, err := fmt.Scan(&movie.Id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter movie new title: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	movie.Title = scanner.Text()
+
+	fmt.Print("Enter movie new description: ")
+	scanner.Scan()
+	movie.Description = scanner.Text()
+
+	fmt.Print("Enter movie new duration (ex: 1:20:30): ")
+	_, err = fmt.Scan(&movie.Duration)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.UpdateMovie(movie)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Movie id = %d successfully updated\n", movie.Id)
+	return err
+}
+
+func (h *handler) UpdateSession() error {
+	var session domain.Session
+	fmt.Print("Enter session id you want to update: ")
+	_, err := fmt.Scan(&session.Id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter session new movie id: ")
+	_, err = fmt.Scan(&session.MovieId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter session new description: ")
+	_, err = fmt.Scan(&session.HallId)
+	if err != nil {
+		return err
+	}
+
+	var startAt string
+	fmt.Print("Enter start time (ex.: 02/01/06,15:04): ")
+	_, err = fmt.Scan(&startAt)
+	if err != nil {
+		return fmt.Errorf("invalid start at time input")
+	}
+
+	session.StartAt, err = time.Parse("02/01/06,15:04", startAt)
+	if err != nil {
+		return fmt.Errorf("invalid start at time input")
+	}
+
+	err = h.service.UpdateSession(session)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Session id = %d successfully updated\n", session.Id)
+	return err
+}
+
+func (h *handler) UpdateTicket() error {
+	var ticket domain.Ticket
+	fmt.Print("Enter ticket id you want to update: ")
+	_, err := fmt.Scan(&ticket.Id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter ticket new customer id: ")
+	_, err = fmt.Scan(&ticket.CustomerId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter ticket new session id: ")
+	_, err = fmt.Scan(&ticket.SessionId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter ticket new price: ")
+	_, err = fmt.Scan(&ticket.Price)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter ticket new row id: ")
+	_, err = fmt.Scan(&ticket.RowId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Enter ticket new position id: ")
+	_, err = fmt.Scan(&ticket.PositionId)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.UpdateTicket(ticket)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Ticket id = %d successfully updated\n", ticket.Id)
 	return err
 }
