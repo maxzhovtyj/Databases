@@ -194,7 +194,7 @@ func (s *storage) InsertMovie(movie domain.Movie) (int, error) {
 	row := s.db.QueryRow(queryInsertMovie, movie.Title, movie.Description, movie.Duration)
 
 	if err := row.Scan(&movieId); err != nil {
-		return 0, fmt.Errorf("failed to inset new movie '%s' due to error: %v", movie.Title, err)
+		return 0, fmt.Errorf("failed to inset new movie '%s' due to  %v", movie.Title, err)
 	}
 
 	return movieId, nil
@@ -211,7 +211,7 @@ func (s *storage) InsertCustomer(customer domain.Customer) (int, error) {
 	row := s.db.QueryRow(queryInsertCustomer, customer.FirstName, customer.LastName)
 
 	if err := row.Scan(&customerId); err != nil {
-		return 0, fmt.Errorf("failed to insert new customer %s due to error: %v", customer.LastName, err)
+		return 0, fmt.Errorf("failed to insert new customer %s due to  %v", customer.LastName, err)
 	}
 
 	return customerId, nil
@@ -228,7 +228,7 @@ func (s *storage) InsertSession(session domain.Session) (int, error) {
 	row := s.db.QueryRow(queryInsertSession, session.MovieId, session.HallId, session.StartAt)
 
 	if err := row.Scan(&sessionId); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to insert session due to %v", err)
 	}
 
 	return sessionId, nil
@@ -257,9 +257,9 @@ func (s *storage) InsertTicket(ticket domain.Ticket) (int, error) {
 
 	if err := row.Scan(&ticketId); err != nil {
 		if errors.Is(err, pgx.PgError{}) {
-			return 0, fmt.Errorf("failed to insert new ticket due to error: %v", err)
+			return 0, fmt.Errorf("failed to insert new ticket due to  %v", err)
 		}
-		return 0, fmt.Errorf("failed to insert new ticket due to error: %v", err)
+		return 0, fmt.Errorf("failed to insert new ticket due to  %v", err)
 	}
 
 	return ticketId, nil
@@ -271,9 +271,9 @@ func (s *storage) SearchSessions(params domain.SessionsSearchParams) (sessions [
 	querySearchSessions := fmt.Sprintf(
 		`
 		SELECT session.id,
-				movie.title as movie,
-		   		session.start_at,
-		   		hall.title  as hall
+               movie.title,
+			   session.start_at,
+			   hall.title
 		FROM session
 			 JOIN movie on movie.id = session.movie_id
 			 JOIN hall on hall.id = session.hall_id
@@ -347,7 +347,7 @@ func (s *storage) SearchTickets(params domain.TicketsSearchParams) (tickets []do
 		params.MovieDurationLt,
 	)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("failed to select tickets due to %v", err)
 	}
 
 	d = time.Now().Sub(start)
@@ -398,7 +398,7 @@ func (s *storage) SearchHalls(params domain.HallsSearchParams) (halls []domain.S
 
 	rows, err := s.db.Query(q, params.HallTitle, params.CapacityGt, params.CapacityLt)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to select halls")
+		return nil, 0, fmt.Errorf("failed to select halls due to %v", err)
 	}
 
 	queryTime := time.Now().Sub(start)
@@ -429,7 +429,7 @@ func (s *storage) SearchHalls(params domain.HallsSearchParams) (halls []domain.S
 //
 
 func (s *storage) InsertRandomisedMovies(movieAmount int) error {
-	q :=
+	queryInsertMovies :=
 		`
 		INSERT INTO 
 		movie (title, description, duration) 
@@ -440,12 +440,12 @@ func (s *storage) InsertRandomisedMovies(movieAmount int) error {
 		FROM generate_series(1, $1)
 	`
 
-	_, err := s.db.Exec(q, movieAmount)
+	_, err := s.db.Exec(queryInsertMovies, movieAmount)
 	if err != nil {
 		return fmt.Errorf("failed to insert movies")
 	}
 
-	return err
+	return nil
 }
 
 func (s *storage) InsertRandomisedSessions(amount int) error {
@@ -473,7 +473,7 @@ func (s *storage) DeleteCustomer(id int) error {
 
 	_, err := s.db.Exec(queryDeleteCustomer, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete customer id = %d due to error: %v", id, err)
+		return fmt.Errorf("failed to delete customer id = %d due to  %v", id, err)
 	}
 
 	return nil
@@ -484,7 +484,7 @@ func (s *storage) DeleteMovie(id int) error {
 
 	_, err := s.db.Exec(queryDeleteMovie, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete movie id = %d due to error: %v", id, err)
+		return fmt.Errorf("failed to delete movie id = %d due to %v", id, err)
 	}
 
 	return nil
@@ -495,7 +495,7 @@ func (s *storage) DeleteSession(id int) error {
 
 	_, err := s.db.Exec(queryDeleteSession, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete session id = %d due to error: %v", id, err)
+		return fmt.Errorf("failed to delete session id = %d due to %v", id, err)
 	}
 
 	return nil
@@ -506,7 +506,7 @@ func (s *storage) DeleteTicket(id int) error {
 
 	_, err := s.db.Exec(queryDeleteTicket, id)
 	if err != nil {
-		return fmt.Errorf("failed to delete ticket id = %d due to error: %v", id, err)
+		return fmt.Errorf("failed to delete ticket id = %d due to: %v", id, err)
 	}
 
 	return nil
@@ -522,7 +522,7 @@ func (s *storage) UpdateCustomer(customer domain.Customer) error {
 
 	_, err := s.db.Exec(queryUpdateCustomer, customer.FirstName, customer.LastName, customer.Id)
 	if err != nil {
-		return fmt.Errorf("failed to update customer id = %d, due to error: %v", customer.Id, err)
+		return fmt.Errorf("failed to update customer id = %d, due to %v", customer.Id, err)
 	}
 
 	return err
@@ -536,7 +536,7 @@ func (s *storage) UpdateMovie(movie domain.Movie) error {
 
 	_, err := s.db.Exec(queryUpdateMovie, movie.Title, movie.Description, movie.Duration, movie.Id)
 	if err != nil {
-		return fmt.Errorf("failed to update movie id = %d, due to error: %v", movie.Id, err)
+		return fmt.Errorf("failed to update movie id = %d, due to %v", movie.Id, err)
 	}
 
 	return err
@@ -550,7 +550,7 @@ func (s *storage) UpdateSession(session domain.Session) error {
 
 	_, err := s.db.Exec(queryUpdateSession, session.MovieId, session.HallId, session.StartAt, session.Id)
 	if err != nil {
-		return fmt.Errorf("failed to update session id = %d, due to error: %v", session.Id, err)
+		return fmt.Errorf("failed to update session id = %d, due to %v", session.Id, err)
 	}
 
 	return err
@@ -572,7 +572,7 @@ func (s *storage) UpdateTicket(ticket domain.Ticket) error {
 		ticket.Id,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to update ticket id = %d, due to error: %v", ticket.Id, err)
+		return fmt.Errorf("failed to update ticket id = %d, due to %v", ticket.Id, err)
 	}
 
 	return err

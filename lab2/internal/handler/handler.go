@@ -304,7 +304,7 @@ func (h *handler) SearchSessions() (err error) {
 	searchParams.MovieName = scanner.Text()
 
 	var startAtGt string
-	fmt.Print("Enter start time (ex.: 02/01/06,15:04): ")
+	fmt.Print("Enter greater than (ex.: 02/01/06,15:04): ")
 	_, err = fmt.Scan(&startAtGt)
 	if err != nil {
 		return fmt.Errorf("invalid start at time input")
@@ -316,7 +316,7 @@ func (h *handler) SearchSessions() (err error) {
 	}
 
 	var startAtLt string
-	fmt.Print("Enter start time (ex.: 02/01/06,15:04): ")
+	fmt.Print("Enter lower than time (ex.: 02/01/06,15:04): ")
 	_, err = fmt.Scan(&startAtLt)
 	if err != nil {
 		return fmt.Errorf("invalid start at time input")

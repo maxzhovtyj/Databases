@@ -65,133 +65,133 @@ func runServer(handler handler.Handler) error {
 		case 1:
 			err = handler.GetCustomers()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 2:
 			err = handler.GetMovies()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 3:
 			err = handler.GetHalls()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 4:
 			err = handler.GetSessions()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 5:
 			err = handler.GetTickets()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 6:
 			err = handler.NewMovie()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 7:
 			err = handler.NewCustomer()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 8:
 			err = handler.NewSession()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 9:
 			err = handler.NewTicket()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 10:
 			err = handler.SearchSessions()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 11:
 			err = handler.SearchTickets()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 12:
 			err = handler.SearchHalls()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 13:
 			err = handler.NewRandomMovies()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 14:
 			err = handler.NewRandomSessions()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 15:
 			err = handler.DeleteMovie()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 16:
 			err = handler.DeleteCustomer()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 17:
 			err = handler.DeleteSession()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 18:
 			err = handler.DeleteTicket()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 19:
 			err = handler.UpdateMovie()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 20:
 			err = handler.UpdateCustomer()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 21:
 			err = handler.UpdateSession()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		case 22:
 			err = handler.UpdateTicket()
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
 			}
 
 		default:
@@ -231,8 +231,8 @@ func printMenu() {
 
 	fmt.Println("")
 
-	fmt.Println("\t~ 16. Delete movie")
-	fmt.Println("\t~ 15. Delete customer")
+	fmt.Println("\t~ 15. Delete movie")
+	fmt.Println("\t~ 16. Delete customer")
 	fmt.Println("\t~ 17. Delete session")
 	fmt.Println("\t~ 18. Delete ticket")
 
