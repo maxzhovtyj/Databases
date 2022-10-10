@@ -27,6 +27,8 @@ type Repository interface {
 	SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
 	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error)
 	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
+	InsertRandomisedMovies(movieAmount int) error
+	InsertRandomisedSessions(amount int) error
 }
 
 func NewRepository(db *pgx.Conn) Repository {
@@ -67,11 +69,14 @@ func (s *storage) SelectMovies() (movies []domain.Movie, err error) {
 
 	for rows.Next() {
 		var ctr domain.Movie
+		var movieDuration time.Duration
 
-		err = rows.Scan(&ctr.Id, &ctr.Title, &ctr.Description, &ctr.Duration)
+		err = rows.Scan(&ctr.Id, &ctr.Title, &ctr.Description, &movieDuration)
 		if err != nil {
 			return nil, err
 		}
+
+		ctr.Duration = movieDuration.String()
 
 		movies = append(movies, ctr)
 	}
@@ -407,4 +412,42 @@ func (s *storage) SearchHalls(params domain.HallsSearchParams) (halls []domain.S
 	}
 
 	return halls, queryTime, err
+}
+
+func (s *storage) InsertRandomisedMovies(movieAmount int) error {
+	q :=
+		`
+		INSERT INTO 
+		movie (title, description, duration) 
+		SELECT 
+			chr(trunc(65+random()*25)::int) || chr(trunc(65+random()*25)::int),
+			chr(trunc(65+random()*25)::int) || chr(trunc(65+random()*25)::int),
+			trunc(random()  * 180) * '1 minute'::interval 
+		FROM generate_series(1, $1)
+	`
+
+	_, err := s.db.Exec(q, movieAmount)
+	if err != nil {
+		return fmt.Errorf("failed to insert movies")
+	}
+
+	return err
+}
+
+func (s *storage) InsertRandomisedSessions(amount int) error {
+	q := `
+	INSERT INTO 
+	session (movie_id, hall_id, start_at) 
+	SELECT 
+		trunc(random()*((SELECT MAX(id) FROM movie) - 1 + 1) + 1)::int,
+		trunc(random()*((SELECT MAX(id) FROM hall) - 1 + 1) + 1)::int,
+		NOW() + (random() * (interval '90 days')) + '30 days'
+	FROM generate_series(1, $1)
+	`
+	_, err := s.db.Exec(q, amount)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

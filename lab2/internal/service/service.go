@@ -23,6 +23,8 @@ type Service interface {
 	SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
 	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error)
 	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
+	CreateRandomMovies(amount int) error
+	CreateRandomSessions(amount int) error
 }
 
 func NewService(repo repository.Repository) Service {
@@ -75,4 +77,12 @@ func (s *service) SearchTickets(params domain.TicketsSearchParams) ([]domain.Sel
 
 func (s *service) SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error) {
 	return s.repo.SearchHalls(params)
+}
+
+func (s *service) CreateRandomMovies(amount int) error {
+	return s.repo.InsertRandomisedMovies(amount)
+}
+
+func (s *service) CreateRandomSessions(amount int) error {
+	return s.repo.InsertRandomisedSessions(amount)
 }

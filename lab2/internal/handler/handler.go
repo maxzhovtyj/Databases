@@ -25,7 +25,9 @@ type Handler interface {
 	NewTicket() error
 	SearchSessions() error
 	SearchTickets() error
-	SearchHalls() (err error)
+	SearchHalls() error
+	NewRandomMovies() error
+	NewRandomSessions() error
 }
 
 func NewHandler(service service.Service) Handler {
@@ -404,6 +406,42 @@ func (h *handler) SearchHalls() (err error) {
 	fmt.Println("====================================")
 	fmt.Println("Query time:", queryTime)
 	fmt.Println("====================================")
+
+	return err
+}
+
+func (h *handler) NewRandomMovies() error {
+	var movieAmount int
+	fmt.Print("Enter inserted movie amount: ")
+	_, err := fmt.Scan(&movieAmount)
+	if err != nil {
+		return fmt.Errorf("invalid amount")
+	}
+
+	err = h.service.CreateRandomMovies(movieAmount)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Successfully inserted:", movieAmount)
+
+	return err
+}
+
+func (h *handler) NewRandomSessions() error {
+	var sessionsAmount int
+	fmt.Print("Enter inserted sessions amount: ")
+	_, err := fmt.Scan(&sessionsAmount)
+	if err != nil {
+		return fmt.Errorf("invalid amount")
+	}
+
+	err = h.service.CreateRandomSessions(sessionsAmount)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Successfully inserted:", sessionsAmount)
 
 	return err
 }

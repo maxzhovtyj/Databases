@@ -112,6 +112,16 @@ func runServer(handler handler.Handler) error {
 			if err != nil {
 				return err
 			}
+		case 13:
+			err = handler.NewRandomMovies()
+			if err != nil {
+				return err
+			}
+		case 14:
+			err = handler.NewRandomSessions()
+			if err != nil {
+				return err
+			}
 		default:
 			break
 		}
@@ -137,4 +147,7 @@ func printMenu() {
 	fmt.Println("\t~ 10. Search sessions")
 	fmt.Println("\t~ 11. Search tickets")
 	fmt.Println("\t~ 12. Search halls")
+
+	fmt.Println("\t~ 13. Insert random movies")
+	fmt.Println("\t~ 13. Insert random sessions")
 }
