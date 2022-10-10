@@ -6,11 +6,13 @@ import (
 	"lab2/internal/domain"
 	"lab2/internal/service"
 	"os"
+	"strings"
 	"time"
 )
 
 type handler struct {
 	service service.Service
+	logger  *bufio.Writer
 }
 
 type Handler interface {
@@ -38,8 +40,11 @@ type Handler interface {
 	UpdateTicket() error
 }
 
-func NewHandler(service service.Service) Handler {
-	return &handler{service: service}
+func NewHandler(service service.Service, logger *bufio.Writer) Handler {
+	return &handler{
+		service: service,
+		logger:  logger,
+	}
 }
 
 func (h *handler) GetCustomers() error {
@@ -49,12 +54,17 @@ func (h *handler) GetCustomers() error {
 	}
 
 	for _, mov := range customers {
-		fmt.Println("Відвідувач id =", mov.Id)
-		fmt.Println("\tІм'я:", mov.FirstName)
-		fmt.Println("\tПрізвище:", mov.LastName)
+		_, _ = fmt.Fprintln(h.logger, "Відвідувач id =", mov.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tІм'я:", mov.FirstName)
+		_, _ = fmt.Fprintln(h.logger, "\tПрізвище:", mov.LastName)
 	}
 
-	fmt.Println("Кількість відвідувачів =", len(customers))
+	_, err = fmt.Fprintln(h.logger, "Кількість відвідувачів =", len(customers))
+	if err != nil {
+		return err
+	}
+
+	h.logger.Flush()
 
 	return nil
 }
@@ -66,14 +76,15 @@ func (h *handler) GetMovies() error {
 	}
 
 	for _, mov := range movies {
-		fmt.Println("Фільм id =", mov.Id)
-		fmt.Println("\tНазва:", mov.Title)
-		fmt.Println("\tОпис:", mov.Description)
-		fmt.Println("\tТривалість:", mov.Duration)
+		_, _ = fmt.Fprintln(h.logger, "Фільм id =", mov.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва:", mov.Title)
+		_, _ = fmt.Fprintln(h.logger, "\tОпис:", mov.Description)
+		_, _ = fmt.Fprintln(h.logger, "\tТривалість:", mov.Duration)
 	}
 
-	fmt.Println("Кількість фільмів =", len(movies))
+	_, _ = fmt.Fprintln(h.logger, "Кількість фільмів =", len(movies))
 
+	h.logger.Flush()
 	return err
 }
 
@@ -84,14 +95,15 @@ func (h *handler) GetHalls() error {
 	}
 
 	for _, hls := range halls {
-		fmt.Println("Кінозал id =", hls.Id)
-		fmt.Println("\tНазва:", hls.Title)
-		fmt.Println("\tОпис:", hls.Description)
-		fmt.Println("\tВмістимість:", hls.Capacity)
+		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hls.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва:", hls.Title)
+		_, _ = fmt.Fprintln(h.logger, "\tОпис:", hls.Description)
+		_, _ = fmt.Fprintln(h.logger, "\tВмістимість:", hls.Capacity)
 	}
 
-	fmt.Println("Кількість кінозалів =", len(halls))
+	_, _ = fmt.Fprintln(h.logger, "Кількість кінозалів =", len(halls))
 
+	h.logger.Flush()
 	return err
 }
 
@@ -102,14 +114,15 @@ func (h *handler) GetSessions() error {
 	}
 
 	for _, s := range sessions {
-		fmt.Println("Сеанс id =", s.Id)
-		fmt.Println("\tФільм:", s.MovieId)
-		fmt.Println("\tКінозал:", s.HallId)
-		fmt.Println("\tПочинається о:", s.StartAt)
+		_, _ = fmt.Fprintln(h.logger, "Сеанс id =", s.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tФільм:", s.MovieId)
+		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", s.HallId)
+		_, _ = fmt.Fprintln(h.logger, "\tПочинається о:", s.StartAt)
 	}
 
-	fmt.Println("Кількість сеансів =", len(sessions))
+	_, _ = fmt.Fprintln(h.logger, "Кількість сеансів =", len(sessions))
 
+	h.logger.Flush()
 	return err
 }
 
@@ -120,16 +133,17 @@ func (h *handler) GetTickets() error {
 	}
 
 	for _, t := range tickets {
-		fmt.Println("Квиток id =", t.Id)
-		fmt.Println("\tКористувач:", t.CustomerId)
-		fmt.Println("\tСеанс:", t.SessionId)
-		fmt.Println("\tЦіна:", t.Price)
-		fmt.Println("\tРяд (id):", t.RowId)
-		fmt.Println("\tМісце (id):", t.PositionId)
+		_, _ = fmt.Fprintln(h.logger, "Квиток id =", t.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tКористувач:", t.CustomerId)
+		_, _ = fmt.Fprintln(h.logger, "\tСеанс:", t.SessionId)
+		_, _ = fmt.Fprintln(h.logger, "\tЦіна:", t.Price)
+		_, _ = fmt.Fprintln(h.logger, "\tРяд (id):", t.RowId)
+		_, _ = fmt.Fprintln(h.logger, "\tМісце (id):", t.PositionId)
 	}
 
-	fmt.Println("Кількість квитків =", len(tickets))
+	_, _ = fmt.Fprintln(h.logger, "Кількість квитків =", len(tickets))
 
+	h.logger.Flush()
 	return err
 }
 
@@ -161,8 +175,9 @@ func (h *handler) NewMovie() error {
 		return err
 	}
 
-	fmt.Println("Inserted movie id", movieId)
+	_, _ = fmt.Fprintln(h.logger, "Inserted movie id", movieId)
 
+	h.logger.Flush()
 	return nil
 }
 
@@ -184,8 +199,9 @@ func (h *handler) NewCustomer() error {
 		return err
 	}
 
-	fmt.Println("Inserted customer id", movieId)
+	_, _ = fmt.Fprintln(h.logger, "Inserted customer id", movieId)
 
+	h.logger.Flush()
 	return nil
 }
 
@@ -221,8 +237,12 @@ func (h *handler) NewSession() error {
 		return err
 	}
 
-	fmt.Println("Inserted session id", sessionId)
+	_, _ = fmt.Fprintln(h.logger, "Inserted session id", sessionId)
 
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -264,8 +284,12 @@ func (h *handler) NewTicket() error {
 		return err
 	}
 
-	fmt.Println("Inserted ticket id", ticketId)
+	_, _ = fmt.Fprintln(h.logger, "Inserted ticket id", ticketId)
 
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -309,18 +333,22 @@ func (h *handler) SearchSessions() (err error) {
 	}
 
 	for _, s := range sessions {
-		fmt.Println("Сеанс id =", s.Id)
-		fmt.Println("\tНазва фільму:", s.Movie)
-		fmt.Println("\tПочаток о:", s.StartAt)
-		fmt.Println("\tКінозал:", s.Hall)
+		_, _ = fmt.Fprintln(h.logger, "Сеанс id =", s.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва фільму:", s.Movie)
+		_, _ = fmt.Fprintln(h.logger, "\tПочаток о:", s.StartAt)
+		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", s.Hall)
 	}
 
 	fmt.Println("Кількість сеансів =", len(sessions))
 
-	fmt.Println("====================================")
-	fmt.Println("Query time:", queryTime)
-	fmt.Println("====================================")
+	_, _ = fmt.Fprintln(h.logger, "====================================")
+	_, _ = fmt.Fprintln(h.logger, "Query time:", queryTime)
+	_, _ = fmt.Fprintln(h.logger, "====================================")
 
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -357,23 +385,27 @@ func (h *handler) SearchTickets() (err error) {
 	}
 
 	for _, t := range tickets {
-		fmt.Println("Квиток id =", t.Id)
-		fmt.Println("\tВідвідувач:", t.CustomerLastname, t.CustomerFirstname)
-		fmt.Println("\tНазва фільму:", t.MovieTitle)
-		fmt.Println("\tТривалість фільму:", t.MovieDuration)
-		fmt.Println("\tПочинається о:", t.SessionStartAt)
-		fmt.Println("\tКінозал:", t.HallTitle)
-		fmt.Println("\tЦіна:", t.Price)
-		fmt.Println("\tРяд:", t.Row)
-		fmt.Println("\tМісце:", t.Position)
+		_, _ = fmt.Fprintln(h.logger, "Квиток id =", t.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tВідвідувач:", t.CustomerLastname, t.CustomerFirstname)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва фільму:", t.MovieTitle)
+		_, _ = fmt.Fprintln(h.logger, "\tТривалість фільму:", t.MovieDuration)
+		_, _ = fmt.Fprintln(h.logger, "\tПочинається о:", t.SessionStartAt)
+		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", t.HallTitle)
+		_, _ = fmt.Fprintln(h.logger, "\tЦіна:", t.Price)
+		_, _ = fmt.Fprintln(h.logger, "\tРяд:", t.Row)
+		_, _ = fmt.Fprintln(h.logger, "\tМісце:", t.Position)
 	}
 
-	fmt.Println("Кількість квитків =", len(tickets))
+	_, _ = fmt.Fprintln(h.logger, "Кількість квитків =", len(tickets))
 
-	fmt.Println("====================================")
-	fmt.Println("Query time:", queryTime)
-	fmt.Println("====================================")
+	_, _ = fmt.Fprintln(h.logger, "====================================")
+	_, _ = fmt.Fprintln(h.logger, "Query time:", queryTime)
+	_, _ = fmt.Fprintln(h.logger, "====================================")
 
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -407,18 +439,22 @@ func (h *handler) SearchHalls() (err error) {
 	}
 
 	for _, hl := range halls {
-		fmt.Println("Кінозал id =", hl.Id)
-		fmt.Println("\tНазва:", hl.Title)
-		fmt.Println("\tОпис:", hl.Description)
-		fmt.Println("\tРяди:", hl.Rows)
+		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hl.Id)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва:", hl.Title)
+		_, _ = fmt.Fprintln(h.logger, "\tОпис:", hl.Description)
+		_, _ = fmt.Fprintln(h.logger, "\tРяди:", hl.Rows)
 	}
 
-	fmt.Println("Кількість кінозалів =", len(halls))
+	_, _ = fmt.Fprintln(h.logger, "Кількість кінозалів =", len(halls))
 
-	fmt.Println("====================================")
-	fmt.Println("Query time:", queryTime)
-	fmt.Println("====================================")
+	_, _ = fmt.Fprintln(h.logger, "====================================")
+	_, _ = fmt.Fprintln(h.logger, "Query time:", queryTime)
+	_, _ = fmt.Fprintln(h.logger, "====================================")
 
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -470,12 +506,24 @@ func (h *handler) DeleteCustomer() error {
 		return err
 	}
 
-	err = h.service.DeleteCustomer(id)
+	var option string
+	fmt.Print("Deleting customer will lead to deleting all customer tickets. Are you sure (y/n): ")
+	_, err = fmt.Scan(&option)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Customer id = %d successfully deleted\n", id)
+	if strings.ToLower(option) == "y" {
+		err = h.service.DeleteCustomer(id)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Customer id = %d successfully deleted\n", id)
+	} else {
+		return nil
+	}
+
 	return err
 }
 
@@ -487,9 +535,20 @@ func (h *handler) DeleteMovie() error {
 		return err
 	}
 
-	err = h.service.DeleteMovie(id)
+	var option string
+	fmt.Print("Deleting movie will lead to deleting all sessions and tickets. Are you sure (y/n): ")
+	_, err = fmt.Scan(&option)
 	if err != nil {
 		return err
+	}
+
+	if strings.ToLower(option) == "y" {
+		err = h.service.DeleteMovie(id)
+		if err != nil {
+			return err
+		}
+	} else {
+		return nil
 	}
 
 	fmt.Printf("Movie id = %d successfully deleted\n", id)
@@ -504,9 +563,20 @@ func (h *handler) DeleteSession() error {
 		return err
 	}
 
-	err = h.service.DeleteSession(id)
+	var option string
+	fmt.Print("Deleting session will lead to deleting all tickets. Are you sure (y/n): ")
+	_, err = fmt.Scan(&option)
 	if err != nil {
 		return err
+	}
+
+	if strings.ToLower(option) == "y" {
+		err = h.service.DeleteSession(id)
+		if err != nil {
+			return err
+		}
+	} else {
+		return nil
 	}
 
 	fmt.Printf("Session %d successfully deleted\n", id)
@@ -521,9 +591,20 @@ func (h *handler) DeleteTicket() error {
 		return err
 	}
 
-	err = h.service.DeleteTicket(id)
+	var option string
+	fmt.Print("Are you sure you want to delete ticket (y/n): ")
+	_, err = fmt.Scan(&option)
 	if err != nil {
 		return err
+	}
+
+	if strings.ToLower(option) == "y" {
+		err = h.service.DeleteTicket(id)
+		if err != nil {
+			return err
+		}
+	} else {
+		return nil
 	}
 
 	fmt.Printf("Ticket %d successfully deleted\n", id)

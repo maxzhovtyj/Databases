@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"lab2/internal/handler"
@@ -8,6 +9,7 @@ import (
 	"lab2/internal/service"
 	"lab2/pkg/client/postgresql"
 	"log"
+	"os"
 )
 
 func main() {
@@ -22,9 +24,25 @@ func main() {
 		log.Fatalf("failed to connect to postgres database, %v", err)
 	}
 
+	f, err := os.Create("./log/out.log")
+	if err != nil {
+		log.Fatalf("failed to open log file, error: %v", err)
+		return
+	}
+
+	writer := bufio.NewWriter(f)
+
+	defer func(f *os.File) {
+		err = f.Close()
+		if err != nil {
+			log.Fatalf("failed to close log file, error: %v", err)
+			return
+		}
+	}(f)
+
 	repo := repository.NewRepository(db)
 	serviceInstance := service.NewService(repo)
-	handlerInstance := handler.NewHandler(serviceInstance)
+	handlerInstance := handler.NewHandler(serviceInstance, writer)
 
 	err = runServer(handlerInstance)
 	if err != nil {
@@ -97,7 +115,7 @@ func runServer(handler handler.Handler) error {
 			if err != nil {
 				return err
 			}
-			
+
 		case 10:
 			err = handler.SearchSessions()
 			if err != nil {

@@ -194,7 +194,7 @@ func (s *storage) InsertMovie(movie domain.Movie) (int, error) {
 	row := s.db.QueryRow(queryInsertMovie, movie.Title, movie.Description, movie.Duration)
 
 	if err := row.Scan(&movieId); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to inset new movie '%s' due to error: %v", movie.Title, err)
 	}
 
 	return movieId, nil
@@ -211,7 +211,7 @@ func (s *storage) InsertCustomer(customer domain.Customer) (int, error) {
 	row := s.db.QueryRow(queryInsertCustomer, customer.FirstName, customer.LastName)
 
 	if err := row.Scan(&customerId); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to insert new customer %s due to error: %v", customer.LastName, err)
 	}
 
 	return customerId, nil
@@ -257,9 +257,9 @@ func (s *storage) InsertTicket(ticket domain.Ticket) (int, error) {
 
 	if err := row.Scan(&ticketId); err != nil {
 		if errors.Is(err, pgx.PgError{}) {
-			return 0, fmt.Errorf("failed to insert new ticket")
+			return 0, fmt.Errorf("failed to insert new ticket due to error: %v", err)
 		}
-		return 0, err
+		return 0, fmt.Errorf("failed to insert new ticket due to error: %v", err)
 	}
 
 	return ticketId, nil
