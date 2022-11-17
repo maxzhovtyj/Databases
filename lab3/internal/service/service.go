@@ -16,13 +16,13 @@ type Service interface {
 	SelectHalls() ([]domain.Hall, error)
 	SelectSessions() ([]domain.Session, error)
 	SelectTickets() ([]domain.Ticket, error)
-	CreateMovie(movie domain.Movie) (int, error)
-	CreateCustomer(customer domain.Customer) (int, error)
-	CreateSession(session domain.Session) (int, error)
-	CreateTicket(ticket domain.Ticket) (int, error)
-	SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error)
-	SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error)
-	SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error)
+	CreateMovie(movie domain.Movie) (uint, error)
+	CreateCustomer(customer domain.Customer) (uint, error)
+	CreateSession(session domain.Session) (uint, error)
+	CreateTicket(ticket domain.Ticket) (uint, error)
+	SearchSessions(params domain.SessionsSearchParams) ([]domain.Session, time.Duration, error)
+	SearchTickets(params domain.TicketsSearchParams) ([]domain.Ticket, time.Duration, error)
+	SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, time.Duration, error)
 	CreateRandomMovies(amount int) error
 	CreateRandomSessions(amount int) error
 	DeleteCustomer(id int) error
@@ -40,50 +40,50 @@ func NewService(repo repository.Repository) Service {
 }
 
 func (s *service) SelectCustomers() ([]domain.Customer, error) {
-	return nil, nil
+	return s.repo.SelectCustomers()
 }
 
-func (s *service) SelectMovies() (movies []domain.Movie, err error) {
-	return nil, err
+func (s *service) SelectMovies() ([]domain.Movie, error) {
+	return s.repo.SelectMovies()
 }
 
 func (s *service) SelectHalls() ([]domain.Hall, error) {
-	return nil, nil
+	return s.repo.SelectHalls()
 }
 
 func (s *service) SelectSessions() ([]domain.Session, error) {
-	return nil, nil
+	return s.repo.SelectSessions()
 }
 
 func (s *service) SelectTickets() ([]domain.Ticket, error) {
-	return nil, nil
+	return s.repo.SelectTickets()
 }
 
-func (s *service) CreateMovie(movie domain.Movie) (int, error) {
-	return 0, nil
+func (s *service) CreateMovie(movie domain.Movie) (uint, error) {
+	return s.repo.InsertMovie(movie)
 }
 
-func (s *service) CreateCustomer(customer domain.Customer) (int, error) {
-	return 0, nil
+func (s *service) CreateCustomer(customer domain.Customer) (uint, error) {
+	return s.repo.InsertCustomer(customer)
 }
 
-func (s *service) CreateSession(session domain.Session) (int, error) {
-	return 0, nil
+func (s *service) CreateSession(session domain.Session) (uint, error) {
+	return s.repo.InsertSession(session)
 }
 
-func (s *service) CreateTicket(ticket domain.Ticket) (int, error) {
-	return 0, nil
+func (s *service) CreateTicket(ticket domain.Ticket) (uint, error) {
+	return s.repo.InsertTicket(ticket)
 }
 
-func (s *service) SearchSessions(params domain.SessionsSearchParams) ([]domain.SelectSessionDTO, time.Duration, error) {
+func (s *service) SearchSessions(params domain.SessionsSearchParams) ([]domain.Session, time.Duration, error) {
 	return nil, 0, nil
 }
 
-func (s *service) SearchTickets(params domain.TicketsSearchParams) ([]domain.SelectTicketDTO, time.Duration, error) {
+func (s *service) SearchTickets(params domain.TicketsSearchParams) ([]domain.Ticket, time.Duration, error) {
 	return nil, 0, nil
 }
 
-func (s *service) SearchHalls(params domain.HallsSearchParams) ([]domain.SelectHallDTO, time.Duration, error) {
+func (s *service) SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, time.Duration, error) {
 	return nil, 0, nil
 }
 
@@ -96,22 +96,22 @@ func (s *service) CreateRandomSessions(amount int) error {
 }
 
 func (s *service) DeleteCustomer(id int) error {
-	return nil
+	return s.repo.DeleteCustomer(id)
 }
 func (s *service) DeleteMovie(id int) error {
-	return nil
+	return s.repo.DeleteMovie(id)
 }
 func (s *service) DeleteSession(id int) error {
-	return nil
+	return s.repo.DeleteSession(id)
 }
 func (s *service) DeleteTicket(id int) error {
-	return nil
+	return s.repo.DeleteTicket(id)
 }
 
 //
 
 func (s *service) UpdateCustomer(customer domain.Customer) error {
-	return nil
+	return s.repo.UpdateCustomer(customer)
 }
 
 func (s *service) UpdateMovie(movie domain.Movie) error {

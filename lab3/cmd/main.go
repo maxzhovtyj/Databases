@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"lab3/internal/domain"
 	"lab3/internal/handler"
 	"lab3/internal/repository"
 	"lab3/internal/service"
@@ -38,6 +39,20 @@ func main() {
 			return
 		}
 	}(f)
+
+	err = dbClient.AutoMigrate(
+		&domain.Customer{},
+		&domain.Hall{},
+		&domain.Movie{},
+		&domain.Position{},
+		&domain.Row{},
+		&domain.Session{},
+		&domain.Ticket{},
+	)
+	if err != nil {
+		log.Fatalf("failed to apply migrations, %v", err)
+		return
+	}
 
 	repo := repository.NewRepository(dbClient)
 	serviceInstance := service.NewService(repo)

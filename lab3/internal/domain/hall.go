@@ -1,18 +1,14 @@
 package domain
 
-type Hall struct {
-	Id          int
-	Title       string
-	Description string
-	Capacity    *int
-}
+import "gorm.io/gorm"
 
-type SelectHallDTO struct {
-	Id          int
+type Hall struct {
+	gorm.Model
+	Sessions    []Session
 	Title       string
 	Description string
-	Capacity    int
-	Rows        []int32
+	Rows        []Row
+	Capacity    *uint
 }
 
 type HallsSearchParams struct {

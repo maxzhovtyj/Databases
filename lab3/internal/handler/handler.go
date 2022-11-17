@@ -54,7 +54,7 @@ func (h *handler) GetCustomers() error {
 	}
 
 	for _, mov := range customers {
-		_, _ = fmt.Fprintln(h.logger, "Відвідувач id =", mov.Id)
+		_, _ = fmt.Fprintln(h.logger, "Відвідувач id =", mov.Model.ID)
 		_, _ = fmt.Fprintln(h.logger, "\tІм'я:", mov.FirstName)
 		_, _ = fmt.Fprintln(h.logger, "\tПрізвище:", mov.LastName)
 	}
@@ -64,7 +64,10 @@ func (h *handler) GetCustomers() error {
 		return err
 	}
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -76,7 +79,7 @@ func (h *handler) GetMovies() error {
 	}
 
 	for _, mov := range movies {
-		_, _ = fmt.Fprintln(h.logger, "Фільм id =", mov.Id)
+		_, _ = fmt.Fprintln(h.logger, "Фільм id =", mov.Model.ID)
 		_, _ = fmt.Fprintln(h.logger, "\tНазва:", mov.Title)
 		_, _ = fmt.Fprintln(h.logger, "\tОпис:", mov.Description)
 		_, _ = fmt.Fprintln(h.logger, "\tТривалість:", mov.Duration)
@@ -84,7 +87,11 @@ func (h *handler) GetMovies() error {
 
 	_, _ = fmt.Fprintln(h.logger, "Кількість фільмів =", len(movies))
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -95,7 +102,7 @@ func (h *handler) GetHalls() error {
 	}
 
 	for _, hls := range halls {
-		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hls.Id)
+		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hls.Model.ID)
 		_, _ = fmt.Fprintln(h.logger, "\tНазва:", hls.Title)
 		_, _ = fmt.Fprintln(h.logger, "\tОпис:", hls.Description)
 		_, _ = fmt.Fprintln(h.logger, "\tВмістимість:", hls.Capacity)
@@ -103,7 +110,11 @@ func (h *handler) GetHalls() error {
 
 	_, _ = fmt.Fprintln(h.logger, "Кількість кінозалів =", len(halls))
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -114,15 +125,18 @@ func (h *handler) GetSessions() error {
 	}
 
 	for _, s := range sessions {
-		_, _ = fmt.Fprintln(h.logger, "Сеанс id =", s.Id)
-		_, _ = fmt.Fprintln(h.logger, "\tФільм:", s.MovieId)
-		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", s.HallId)
+		_, _ = fmt.Fprintln(h.logger, "Сеанс id =", s.Model.ID)
+		_, _ = fmt.Fprintln(h.logger, "\tФільм:", s.MovieID)
+		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", s.HallID)
 		_, _ = fmt.Fprintln(h.logger, "\tПочинається о:", s.StartAt)
 	}
 
 	_, _ = fmt.Fprintln(h.logger, "Кількість сеансів =", len(sessions))
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -133,17 +147,21 @@ func (h *handler) GetTickets() error {
 	}
 
 	for _, t := range tickets {
-		_, _ = fmt.Fprintln(h.logger, "Квиток id =", t.Id)
-		_, _ = fmt.Fprintln(h.logger, "\tКористувач:", t.CustomerId)
-		_, _ = fmt.Fprintln(h.logger, "\tСеанс:", t.SessionId)
+		_, _ = fmt.Fprintln(h.logger, "Квиток id =", t.Model.ID)
+		_, _ = fmt.Fprintln(h.logger, "\tКористувач:", t.CustomerID)
+		_, _ = fmt.Fprintln(h.logger, "\tСеанс:", t.SessionID)
 		_, _ = fmt.Fprintln(h.logger, "\tЦіна:", t.Price)
-		_, _ = fmt.Fprintln(h.logger, "\tРяд (id):", t.RowId)
-		_, _ = fmt.Fprintln(h.logger, "\tМісце (id):", t.PositionId)
+		_, _ = fmt.Fprintln(h.logger, "\tРяд (id):", t.RowID)
+		_, _ = fmt.Fprintln(h.logger, "\tМісце (id):", t.PositionID)
 	}
 
 	_, _ = fmt.Fprintln(h.logger, "Кількість квитків =", len(tickets))
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -177,7 +195,11 @@ func (h *handler) NewMovie() error {
 
 	_, _ = fmt.Fprintln(h.logger, "Inserted movie id", movieId)
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -201,7 +223,11 @@ func (h *handler) NewCustomer() error {
 
 	_, _ = fmt.Fprintln(h.logger, "Inserted customer id", movieId)
 
-	h.logger.Flush()
+	err = h.logger.Flush()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -209,13 +235,13 @@ func (h *handler) NewSession() error {
 	var session domain.Session
 
 	fmt.Print("Enter movie id: ")
-	_, err := fmt.Scan(&session.MovieId)
+	_, err := fmt.Scan(&session.MovieID)
 	if err != nil {
 		return fmt.Errorf("invalid movie id input")
 	}
 
 	fmt.Print("Enter hall id: ")
-	_, err = fmt.Scan(&session.HallId)
+	_, err = fmt.Scan(&session.HallID)
 	if err != nil {
 		return fmt.Errorf("invalid hall id input")
 	}
@@ -250,13 +276,13 @@ func (h *handler) NewTicket() error {
 	var ticket domain.Ticket
 
 	fmt.Print("Enter session id: ")
-	_, err := fmt.Scan(&ticket.SessionId)
+	_, err := fmt.Scan(&ticket.SessionID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter customer id: ")
-	_, err = fmt.Scan(&ticket.CustomerId)
+	_, err = fmt.Scan(&ticket.CustomerID)
 	if err != nil {
 		return err
 	}
@@ -268,13 +294,13 @@ func (h *handler) NewTicket() error {
 	}
 
 	fmt.Print("Enter row id: ")
-	_, err = fmt.Scan(&ticket.RowId)
+	_, err = fmt.Scan(&ticket.RowID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter position id: ")
-	_, err = fmt.Scan(&ticket.PositionId)
+	_, err = fmt.Scan(&ticket.PositionID)
 	if err != nil {
 		return err
 	}
@@ -333,10 +359,10 @@ func (h *handler) SearchSessions() (err error) {
 	}
 
 	for _, s := range sessions {
-		_, _ = fmt.Fprintln(h.logger, "Сеанс id =", s.Id)
-		_, _ = fmt.Fprintln(h.logger, "\tНазва фільму:", s.Movie)
+		_, _ = fmt.Fprintln(h.logger, "Сеанс id =", s.Model.ID)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва фільму:", s.MovieID)
 		_, _ = fmt.Fprintln(h.logger, "\tПочаток о:", s.StartAt)
-		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", s.Hall)
+		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", s.HallID)
 	}
 
 	fmt.Println("Кількість сеансів =", len(sessions))
@@ -384,17 +410,7 @@ func (h *handler) SearchTickets() (err error) {
 		return err
 	}
 
-	for _, t := range tickets {
-		_, _ = fmt.Fprintln(h.logger, "Квиток id =", t.Id)
-		_, _ = fmt.Fprintln(h.logger, "\tВідвідувач:", t.CustomerLastname, t.CustomerFirstname)
-		_, _ = fmt.Fprintln(h.logger, "\tНазва фільму:", t.MovieTitle)
-		_, _ = fmt.Fprintln(h.logger, "\tТривалість фільму:", t.MovieDuration)
-		_, _ = fmt.Fprintln(h.logger, "\tПочинається о:", t.SessionStartAt)
-		_, _ = fmt.Fprintln(h.logger, "\tКінозал:", t.HallTitle)
-		_, _ = fmt.Fprintln(h.logger, "\tЦіна:", t.Price)
-		_, _ = fmt.Fprintln(h.logger, "\tРяд:", t.Row)
-		_, _ = fmt.Fprintln(h.logger, "\tМісце:", t.Position)
-	}
+	_, _ = fmt.Fprintln(h.logger, "Квитки: \n", tickets)
 
 	_, _ = fmt.Fprintln(h.logger, "Кількість квитків =", len(tickets))
 
@@ -439,10 +455,10 @@ func (h *handler) SearchHalls() (err error) {
 	}
 
 	for _, hl := range halls {
-		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hl.Id)
+		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hl.Model.ID)
 		_, _ = fmt.Fprintln(h.logger, "\tНазва:", hl.Title)
 		_, _ = fmt.Fprintln(h.logger, "\tОпис:", hl.Description)
-		_, _ = fmt.Fprintln(h.logger, "\tРяди:", hl.Rows)
+		_, _ = fmt.Fprintln(h.logger, "\tРяди:", hl.Capacity)
 	}
 
 	_, _ = fmt.Fprintln(h.logger, "Кількість кінозалів =", len(halls))
@@ -616,7 +632,7 @@ func (h *handler) DeleteTicket() error {
 func (h *handler) UpdateCustomer() error {
 	var customer domain.Customer
 	fmt.Print("Enter customer id you want to update: ")
-	_, err := fmt.Scan(&customer.Id)
+	_, err := fmt.Scan(&customer.Model.ID)
 	if err != nil {
 		return err
 	}
@@ -642,7 +658,7 @@ func (h *handler) UpdateCustomer() error {
 func (h *handler) UpdateMovie() error {
 	var movie domain.Movie
 	fmt.Print("Enter movie id you want to update: ")
-	_, err := fmt.Scan(&movie.Id)
+	_, err := fmt.Scan(&movie.Model.ID)
 	if err != nil {
 		return err
 	}
@@ -667,26 +683,26 @@ func (h *handler) UpdateMovie() error {
 		return err
 	}
 
-	fmt.Printf("Movie id = %d successfully updated\n", movie.Id)
+	fmt.Printf("Movie id = %d successfully updated\n", movie.Model.ID)
 	return err
 }
 
 func (h *handler) UpdateSession() error {
 	var session domain.Session
 	fmt.Print("Enter session id you want to update: ")
-	_, err := fmt.Scan(&session.Id)
+	_, err := fmt.Scan(&session.Model.ID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter session new movie id: ")
-	_, err = fmt.Scan(&session.MovieId)
+	_, err = fmt.Scan(&session.MovieID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter session new description: ")
-	_, err = fmt.Scan(&session.HallId)
+	_, err = fmt.Scan(&session.HallID)
 	if err != nil {
 		return err
 	}
@@ -708,26 +724,26 @@ func (h *handler) UpdateSession() error {
 		return err
 	}
 
-	fmt.Printf("Session id = %d successfully updated\n", session.Id)
+	fmt.Printf("Session id = %d successfully updated\n", session.Model.ID)
 	return err
 }
 
 func (h *handler) UpdateTicket() error {
 	var ticket domain.Ticket
 	fmt.Print("Enter ticket id you want to update: ")
-	_, err := fmt.Scan(&ticket.Id)
+	_, err := fmt.Scan(&ticket.Model.ID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter ticket new customer id: ")
-	_, err = fmt.Scan(&ticket.CustomerId)
+	_, err = fmt.Scan(&ticket.CustomerID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter ticket new session id: ")
-	_, err = fmt.Scan(&ticket.SessionId)
+	_, err = fmt.Scan(&ticket.SessionID)
 	if err != nil {
 		return err
 	}
@@ -739,13 +755,13 @@ func (h *handler) UpdateTicket() error {
 	}
 
 	fmt.Print("Enter ticket new row id: ")
-	_, err = fmt.Scan(&ticket.RowId)
+	_, err = fmt.Scan(&ticket.RowID)
 	if err != nil {
 		return err
 	}
 
 	fmt.Print("Enter ticket new position id: ")
-	_, err = fmt.Scan(&ticket.PositionId)
+	_, err = fmt.Scan(&ticket.PositionID)
 	if err != nil {
 		return err
 	}
@@ -755,6 +771,6 @@ func (h *handler) UpdateTicket() error {
 		return err
 	}
 
-	fmt.Printf("Ticket id = %d successfully updated\n", ticket.Id)
+	fmt.Printf("Ticket id = %d successfully updated\n", ticket.Model.ID)
 	return err
 }

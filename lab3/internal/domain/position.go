@@ -1,7 +1,10 @@
 package domain
 
+import "gorm.io/gorm"
+
 type Position struct {
-	Id          int
-	RowId       int
-	NumberInRow int
+	gorm.Model
+	Tickets     []Ticket
+	RowID       uint
+	NumberInRow uint
 }

@@ -1,19 +1,16 @@
 package domain
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type Session struct {
-	Id      int
-	MovieId int
-	HallId  int
+	gorm.Model
+	Tickets []Ticket
+	MovieID uint
+	HallID  uint
 	StartAt time.Time
-}
-
-type SelectSessionDTO struct {
-	Id      int
-	Movie   string
-	StartAt time.Time
-	Hall    string
 }
 
 type SessionsSearchParams struct {
