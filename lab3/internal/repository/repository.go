@@ -134,10 +134,50 @@ func (s *storage) SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, t
 }
 
 func (s *storage) InsertRandomisedMovies(movieAmount int) error {
+	var mv []domain.Movie
+	rawQuery := s.db.Raw(
+		`
+		SELECT 
+			chr(trunc(65+random()*25)::int) || chr(trunc(65+random()*25)::int) as title,
+			chr(trunc(65+random()*25)::int) || chr(trunc(65+random()*25)::int) as description,
+			trunc(random()  * 180) * '1 minute'::interval as duration
+		FROM generate_series(1, ?)
+		`,
+		movieAmount,
+	).Scan(&mv)
+	if rawQuery.Error != nil {
+		return fmt.Errorf("failed to insert randomised data, %v", rawQuery.Error)
+	}
+
+	createMovies := s.db.Create(&mv)
+	if createMovies.Error != nil {
+		return fmt.Errorf("failed to create movies, %v", createMovies.Error)
+	}
+
 	return nil
 }
 
 func (s *storage) InsertRandomisedSessions(amount int) error {
+	var sessions []domain.Session
+	rawQuery := s.db.Raw(
+		`
+		SELECT 
+			trunc(random()*((SELECT MAX(id) FROM movies) - (SELECT MIN(id) FROM movies) + 1) + (SELECT MIN(id) FROM movies))::int as movie_id,
+			trunc(random()*((SELECT MAX(id) FROM halls) - (SELECT MIN(id) FROM halls) + 1) + (SELECT MIN(id) FROM halls))::int as hall_id, 
+			NOW() + (random() * (interval '90 days')) + '30 days' as start_at
+		FROM generate_series(1, ?)
+		`,
+		amount,
+	).Scan(&sessions)
+	if rawQuery.Error != nil {
+		return fmt.Errorf("failed to get random data, %v", rawQuery.Error)
+	}
+
+	createSessions := s.db.Create(&sessions)
+	if createSessions.Error != nil {
+		return fmt.Errorf("failed to create random sessions, %v", createSessions.Error)
+	}
+
 	return nil
 }
 
@@ -176,6 +216,7 @@ func (s *storage) DeleteTicket(id int) error {
 
 	return nil
 }
+
 func (s *storage) UpdateCustomer(customer domain.Customer) error {
 	updCustomer := s.db.Updates(&customer)
 	if updCustomer.Error != nil {
@@ -184,6 +225,7 @@ func (s *storage) UpdateCustomer(customer domain.Customer) error {
 
 	return nil
 }
+
 func (s *storage) UpdateMovie(movie domain.Movie) error {
 	updMovie := s.db.Updates(&movie)
 	if updMovie.Error != nil {
@@ -192,6 +234,7 @@ func (s *storage) UpdateMovie(movie domain.Movie) error {
 
 	return nil
 }
+
 func (s *storage) UpdateSession(session domain.Session) error {
 	updSession := s.db.Updates(&session)
 	if updSession.Error != nil {
@@ -200,6 +243,7 @@ func (s *storage) UpdateSession(session domain.Session) error {
 
 	return nil
 }
+
 func (s *storage) UpdateTicket(ticket domain.Ticket) error {
 	updTicket := s.db.Updates(&ticket)
 	if updTicket.Error != nil {

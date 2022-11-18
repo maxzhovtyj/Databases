@@ -88,11 +88,11 @@ func (s *service) SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, t
 }
 
 func (s *service) CreateRandomMovies(amount int) error {
-	return nil
+	return s.repo.InsertRandomisedMovies(amount)
 }
 
 func (s *service) CreateRandomSessions(amount int) error {
-	return nil
+	return s.repo.InsertRandomisedSessions(amount)
 }
 
 func (s *service) DeleteCustomer(id int) error {
@@ -115,13 +115,13 @@ func (s *service) UpdateCustomer(customer domain.Customer) error {
 }
 
 func (s *service) UpdateMovie(movie domain.Movie) error {
-	return nil
+	return s.repo.UpdateMovie(movie)
 }
 
 func (s *service) UpdateSession(session domain.Session) error {
-	return nil
+	return s.repo.UpdateSession(session)
 }
 
 func (s *service) UpdateTicket(ticket domain.Ticket) error {
-	return nil
+	return s.repo.UpdateTicket(ticket)
 }

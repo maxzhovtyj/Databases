@@ -38,7 +38,14 @@ func main() {
 			log.Fatalf("failed to close log file, error: %v", err)
 			return
 		}
+
 	}(f)
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+		}
+	}()
 
 	err = dbClient.AutoMigrate(
 		&domain.Customer{},
