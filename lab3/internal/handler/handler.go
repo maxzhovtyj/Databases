@@ -26,8 +26,7 @@ type Handler interface {
 	NewSession() error
 	NewTicket() error
 	SearchSessions() error
-	SearchTickets() error
-	SearchHalls() error
+	SearchMovies() error
 	NewRandomMovies() error
 	NewRandomSessions() error
 	DeleteCustomer() error
@@ -324,12 +323,8 @@ func (h *handler) NewTicket() error {
 func (h *handler) SearchSessions() (err error) {
 	var searchParams domain.SessionsSearchParams
 
-	fmt.Print("Enter movie name: ")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	searchParams.MovieName = scanner.Text()
-
 	var startAtGt string
+	// "02/01/23,15:04"
 	fmt.Print("Enter greater than (ex.: 02/01/06,15:04): ")
 	_, err = fmt.Scan(&startAtGt)
 	if err != nil {
@@ -342,6 +337,7 @@ func (h *handler) SearchSessions() (err error) {
 	}
 
 	var startAtLt string
+	// "05/01/23,15:04"
 	fmt.Print("Enter lower than time (ex.: 02/01/06,15:04): ")
 	_, err = fmt.Scan(&startAtLt)
 	if err != nil {
@@ -378,90 +374,26 @@ func (h *handler) SearchSessions() (err error) {
 	return err
 }
 
-func (h *handler) SearchTickets() (err error) {
-	var searchParams domain.TicketsSearchParams
+func (h *handler) SearchMovies() (err error) {
+	var searchParams domain.MovieSearchParams
 
-	fmt.Println("Enter ticket price greater than: ")
-	_, err = fmt.Scan(&searchParams.PriceGt)
+	searchParams.CreatedAtGt = "2022-11-18 19:46:31.773422+02"
+	searchParams.CreatedAtLt = "2022-11-18 19:58:29.774339+02"
+
+	movies, queryTime, err := h.service.SearchMovies(searchParams)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Enter ticket price lower than: ")
-	_, err = fmt.Scan(&searchParams.PriceLt)
-	if err != nil {
-		return err
+	for _, m := range movies {
+		_, _ = fmt.Fprintln(h.logger, "Фільм id =", m.Model.ID)
+		_, _ = fmt.Fprintln(h.logger, "\tНазва:", m.Title)
+		_, _ = fmt.Fprintln(h.logger, "\tОпис:", m.Description)
+		_, _ = fmt.Fprintln(h.logger, "\tОпис:", m.Duration)
+		_, _ = fmt.Fprintln(h.logger, "\tСтворено о:", m.Model.CreatedAt)
 	}
 
-	fmt.Println("Enter duration greater than (ex: 1:20:30): ")
-	_, err = fmt.Scan(&searchParams.MovieDurationGt)
-	if err != nil {
-		return fmt.Errorf("invalid duration input")
-	}
-
-	fmt.Println("Enter duration lower than (ex: 1:20:30): ")
-	_, err = fmt.Scan(&searchParams.MovieDurationLt)
-	if err != nil {
-		return fmt.Errorf("invalid duration input")
-	}
-
-	tickets, queryTime, err := h.service.SearchTickets(searchParams)
-	if err != nil {
-		return err
-	}
-
-	_, _ = fmt.Fprintln(h.logger, "Квитки: \n", tickets)
-
-	_, _ = fmt.Fprintln(h.logger, "Кількість квитків =", len(tickets))
-
-	_, _ = fmt.Fprintln(h.logger, "====================================")
-	_, _ = fmt.Fprintln(h.logger, "Query time:", queryTime)
-	_, _ = fmt.Fprintln(h.logger, "====================================")
-
-	err = h.logger.Flush()
-	if err != nil {
-		return err
-	}
-	return err
-}
-
-func (h *handler) SearchHalls() (err error) {
-	var searchParams domain.HallsSearchParams
-
-	fmt.Print("Enter hall title: ")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	searchParams.HallTitle = scanner.Text()
-
-	fmt.Print("Enter capacity greater than: ")
-	_, err = fmt.Scan(&searchParams.CapacityGt)
-	if err != nil {
-		return err
-	}
-
-	fmt.Print("Enter capacity lower than: ")
-	_, err = fmt.Scan(&searchParams.CapacityLt)
-	if err != nil {
-		return err
-	}
-
-	halls, queryTime, err := h.service.SearchHalls(domain.HallsSearchParams{
-		HallTitle:  "par",
-		CapacityGt: 0,
-		CapacityLt: 1000,
-	})
-	if err != nil {
-		return err
-	}
-
-	for _, hl := range halls {
-		_, _ = fmt.Fprintln(h.logger, "Кінозал id =", hl.Model.ID)
-		_, _ = fmt.Fprintln(h.logger, "\tНазва:", hl.Title)
-		_, _ = fmt.Fprintln(h.logger, "\tОпис:", hl.Description)
-		_, _ = fmt.Fprintln(h.logger, "\tРяди:", hl.Capacity)
-	}
-
-	_, _ = fmt.Fprintln(h.logger, "Кількість кінозалів =", len(halls))
+	_, _ = fmt.Fprintln(h.logger, "Кількість фільмів =", len(movies))
 
 	_, _ = fmt.Fprintln(h.logger, "====================================")
 	_, _ = fmt.Fprintln(h.logger, "Query time:", queryTime)

@@ -21,8 +21,7 @@ type Service interface {
 	CreateSession(session domain.Session) (uint, error)
 	CreateTicket(ticket domain.Ticket) (uint, error)
 	SearchSessions(params domain.SessionsSearchParams) ([]domain.Session, time.Duration, error)
-	SearchTickets(params domain.TicketsSearchParams) ([]domain.Ticket, time.Duration, error)
-	SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, time.Duration, error)
+	SearchMovies(params domain.MovieSearchParams) ([]domain.Movie, time.Duration, error)
 	CreateRandomMovies(amount int) error
 	CreateRandomSessions(amount int) error
 	DeleteCustomer(id int) error
@@ -38,6 +37,8 @@ type Service interface {
 func NewService(repo repository.Repository) Service {
 	return &service{repo: repo}
 }
+
+// Read
 
 func (s *service) SelectCustomers() ([]domain.Customer, error) {
 	return s.repo.SelectCustomers()
@@ -59,6 +60,8 @@ func (s *service) SelectTickets() ([]domain.Ticket, error) {
 	return s.repo.SelectTickets()
 }
 
+// Create
+
 func (s *service) CreateMovie(movie domain.Movie) (uint, error) {
 	return s.repo.InsertMovie(movie)
 }
@@ -75,17 +78,17 @@ func (s *service) CreateTicket(ticket domain.Ticket) (uint, error) {
 	return s.repo.InsertTicket(ticket)
 }
 
+// Search
+
 func (s *service) SearchSessions(params domain.SessionsSearchParams) ([]domain.Session, time.Duration, error) {
-	return nil, 0, nil
+	return s.repo.SearchSessions(params)
 }
 
-func (s *service) SearchTickets(params domain.TicketsSearchParams) ([]domain.Ticket, time.Duration, error) {
-	return nil, 0, nil
+func (s *service) SearchMovies(params domain.MovieSearchParams) ([]domain.Movie, time.Duration, error) {
+	return s.repo.SearchMovies(params)
 }
 
-func (s *service) SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, time.Duration, error) {
-	return nil, 0, nil
-}
+//
 
 func (s *service) CreateRandomMovies(amount int) error {
 	return s.repo.InsertRandomisedMovies(amount)
@@ -94,6 +97,8 @@ func (s *service) CreateRandomMovies(amount int) error {
 func (s *service) CreateRandomSessions(amount int) error {
 	return s.repo.InsertRandomisedSessions(amount)
 }
+
+// Delete
 
 func (s *service) DeleteCustomer(id int) error {
 	return s.repo.DeleteCustomer(id)
@@ -108,7 +113,7 @@ func (s *service) DeleteTicket(id int) error {
 	return s.repo.DeleteTicket(id)
 }
 
-//
+// Update
 
 func (s *service) UpdateCustomer(customer domain.Customer) error {
 	return s.repo.UpdateCustomer(customer)

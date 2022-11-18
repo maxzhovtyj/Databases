@@ -1,6 +1,8 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Hall struct {
 	gorm.Model
@@ -11,8 +13,7 @@ type Hall struct {
 	Capacity    *uint
 }
 
-type HallsSearchParams struct {
-	HallTitle  string
-	CapacityGt int
-	CapacityLt int
+type MovieSearchParams struct {
+	CreatedAtGt string
+	CreatedAtLt string
 }

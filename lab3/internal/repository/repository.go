@@ -22,8 +22,7 @@ type Repository interface {
 	InsertSession(session domain.Session) (uint, error)
 	InsertTicket(ticket domain.Ticket) (uint, error)
 	SearchSessions(params domain.SessionsSearchParams) ([]domain.Session, time.Duration, error)
-	SearchTickets(params domain.TicketsSearchParams) ([]domain.Ticket, time.Duration, error)
-	SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, time.Duration, error)
+	SearchMovies(params domain.MovieSearchParams) ([]domain.Movie, time.Duration, error)
 	InsertRandomisedMovies(movieAmount int) error
 	InsertRandomisedSessions(amount int) error
 	DeleteCustomer(id int) error
@@ -122,15 +121,39 @@ func (s *storage) InsertTicket(ticket domain.Ticket) (uint, error) {
 }
 
 func (s *storage) SearchSessions(params domain.SessionsSearchParams) ([]domain.Session, time.Duration, error) {
-	return nil, 0, nil
+	var sessions []domain.Session
+
+	start := time.Now()
+
+	find := s.db.
+		Where("start_at >= ? AND start_at <= ?", params.StartAtGt, params.StartAtLt).
+		Find(&sessions)
+
+	if find.Error != nil {
+		return nil, 0, fmt.Errorf("failed to find sessions, %v", find.Error)
+	}
+
+	queryTime := time.Now().Sub(start)
+
+	return sessions, queryTime, nil
 }
 
-func (s *storage) SearchTickets(params domain.TicketsSearchParams) ([]domain.Ticket, time.Duration, error) {
-	return nil, 0, nil
-}
+func (s *storage) SearchMovies(params domain.MovieSearchParams) ([]domain.Movie, time.Duration, error) {
+	var movies []domain.Movie
 
-func (s *storage) SearchHalls(params domain.HallsSearchParams) ([]domain.Hall, time.Duration, error) {
-	return nil, 0, nil
+	start := time.Now()
+
+	find := s.db.
+		Where("created_at >= ?::timestamptz AND created_at <= ?::timestamptz", params.CreatedAtGt, params.CreatedAtLt).
+		Find(&movies)
+
+	if find.Error != nil {
+		return nil, 0, fmt.Errorf("failed to find movies, %v", find.Error)
+	}
+
+	queryTime := time.Now().Sub(start)
+
+	return movies, queryTime, nil
 }
 
 func (s *storage) InsertRandomisedMovies(movieAmount int) error {

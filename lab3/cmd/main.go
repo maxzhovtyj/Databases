@@ -143,14 +143,8 @@ func runServer(handler handler.Handler) error {
 				fmt.Println(err.Error())
 			}
 
-		case 11:
-			err = handler.SearchTickets()
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-
 		case 12:
-			err = handler.SearchHalls()
+			err = handler.SearchMovies()
 			if err != nil {
 				fmt.Println(err.Error())
 			}
@@ -242,8 +236,7 @@ func printMenu() {
 	fmt.Println("")
 
 	fmt.Println("\t~ 10. Search sessions")
-	fmt.Println("\t~ 11. Search tickets")
-	fmt.Println("\t~ 12. Search halls")
+	fmt.Println("\t~ 12. Search movies")
 
 	fmt.Println("")
 
