@@ -6,10 +6,10 @@ import (
 
 type Ticket struct {
 	gorm.Model
-	CustomerID uint
+	CustomerID uint `gorm:"default:null"`
 	SessionID  uint
-	RowID      uint
-	PositionID uint
+	RowID      uint `gorm:"constraint:OnDelete:SET NULL;"`
+	PositionID uint `gorm:"constraint:OnDelete:SET NULL;"`
 	Price      float64
 }
 

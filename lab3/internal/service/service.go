@@ -32,6 +32,8 @@ type Service interface {
 	UpdateMovie(movie domain.Movie) error
 	UpdateSession(session domain.Session) error
 	UpdateTicket(ticket domain.Ticket) error
+	InsertPositions() error
+	DeletePosition() error
 }
 
 func NewService(repo repository.Repository) Service {
@@ -129,4 +131,12 @@ func (s *service) UpdateSession(session domain.Session) error {
 
 func (s *service) UpdateTicket(ticket domain.Ticket) error {
 	return s.repo.UpdateTicket(ticket)
+}
+
+func (s *service) InsertPositions() error {
+	return s.repo.InsertPositions()
+}
+
+func (s *service) DeletePosition() error {
+	return s.repo.DeletePosition()
 }

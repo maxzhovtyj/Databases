@@ -208,6 +208,16 @@ func runServer(handler handler.Handler) error {
 			if err != nil {
 				fmt.Println(err.Error())
 			}
+		case 23:
+			err = handler.InsertPositions()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+		case 24:
+			err = handler.DeletePosition()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
 		default:
 			break
@@ -256,4 +266,9 @@ func printMenu() {
 	fmt.Println("\t~ 20. Edit customer")
 	fmt.Println("\t~ 21. Edit session")
 	fmt.Println("\t~ 22. Edit ticket")
+
+	fmt.Println("")
+
+	fmt.Println("\t~ 23. Insert positions")
+	fmt.Println("\t~ 24. Delete position")
 }

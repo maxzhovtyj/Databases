@@ -33,6 +33,8 @@ type Repository interface {
 	UpdateMovie(movie domain.Movie) error
 	UpdateSession(session domain.Session) error
 	UpdateTicket(ticket domain.Ticket) error
+	InsertPositions() error
+	DeletePosition() error
 }
 
 func NewRepository(db *gorm.DB) Repository {
@@ -272,6 +274,65 @@ func (s *storage) UpdateTicket(ticket domain.Ticket) error {
 	if updTicket.Error != nil {
 		return fmt.Errorf("failed to update ticket, %v", updTicket.Error)
 	}
+
+	return nil
+}
+
+func (s *storage) InsertPositions() error {
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 1,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 2,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 3,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 4,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 5,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 6,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 7,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 8,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 9,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 10,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 11,
+	})
+	s.db.Create(&domain.Position{
+		RowID:       1,
+		NumberInRow: 12,
+	})
+
+	return nil
+}
+
+func (s *storage) DeletePosition() error {
+	s.db.Delete(&domain.Position{}, 41)
 
 	return nil
 }

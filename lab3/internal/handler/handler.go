@@ -37,6 +37,8 @@ type Handler interface {
 	UpdateMovie() error
 	UpdateSession() error
 	UpdateTicket() error
+	InsertPositions() error
+	DeletePosition() error
 }
 
 func NewHandler(service service.Service, logger *bufio.Writer) Handler {
@@ -705,4 +707,22 @@ func (h *handler) UpdateTicket() error {
 
 	fmt.Printf("Ticket id = %d successfully updated\n", ticket.Model.ID)
 	return err
+}
+
+func (h *handler) InsertPositions() error {
+	err := h.service.InsertPositions()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *handler) DeletePosition() error {
+	err := h.service.DeletePosition()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
